@@ -1,12 +1,19 @@
 // src/components/Navbar/Navbar.js
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
-import logo from '../../assets/contrrat-logo.png'; // Importando o logo
+import logo from '../../assets/contrrat-logo.png';
+import { useAuth } from '../../contexts/AuthContext'; // Importe nosso hook
+import Button from '../Button/Button';
 
 const Navbar = () => {
-    // Futuramente, aqui você terá uma lógica para saber se o usuário está logado
-    const isLoggedIn = !!localStorage.getItem('authToken');
+    const { isAuthenticated, user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/'); // Redireciona para a home após o logout
+    };
 
     return (
         <nav className={styles.navbar}>
@@ -32,29 +39,41 @@ const Navbar = () => {
                 >
                     Artistas
                 </NavLink>
-                {/* Lógica de exibição condicional */}
-                {isLoggedIn ? (
-                    <NavLink
-                        to="/perfil"
-                        className={({ isActive }) =>
-                            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
-                        }
-                    >
-                        Meu Perfil
-                    </NavLink>
+
+                {isAuthenticated ? (
+                    <>
+                        <NavLink
+                            to="/perfil"
+                            className={({ isActive }) =>
+                                isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+                            }
+                        >
+                            Olá, {user?.name.split(' ')[0]} {/* Mostra o primeiro nome */}
+                        </NavLink>
+                        <Button onClick={handleLogout}>Sair</Button>
+                    </>
                 ) : (
-                    <NavLink
-                        to="/login"
-                        className={({ isActive }) =>
-                            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
-                        }
-                    >
-                        Login
-                    </NavLink>
+                    <>
+                        <NavLink
+                            to="/login"
+                            className={({ isActive }) =>
+                                isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+                            }
+                        >
+                            Login
+                        </NavLink>
+                        <NavLink
+                            to="/register"
+                            className={({ isActive }) =>
+                                isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+                            }
+                        >
+                            Cadastre-se
+                        </NavLink>
+                    </>
                 )}
             </div>
             <div className={styles.menuIcon}>
-                {/* Ícone de menu para mobile (pode ser um SVG ou ícone de uma biblioteca) */}
                 &#9776;
             </div>
         </nav>

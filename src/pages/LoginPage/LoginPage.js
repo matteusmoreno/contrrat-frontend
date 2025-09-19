@@ -1,26 +1,25 @@
+// src/pages/LoginPage/LoginPage.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../../services/api'; // Importa nossa função de login
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext'; // Importe nosso hook
 import Button from '../../components/Button/Button';
 import styles from './LoginPage.module.css';
 
 const LoginPage = () => {
-    const [username, setUsername] = useState(''); // Estado para guardar o email
-    const [password, setPassword] = useState(''); // Estado para guardar a senha
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate(); // Hook para redirecionar o usuário
+
+    const { login } = useAuth(); // Obtenha a função login do contexto
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
-        event.preventDefault(); // Impede o recarregamento da página
+        event.preventDefault();
         setError('');
 
         try {
-            const response = await login(username, password);
-            const { token } = response.data;
-
-            localStorage.setItem('authToken', token); // Salva o token
-            window.location.href = '/'; // Redireciona para a home (recarregando a pág para o axios pegar o token)
-
+            await login(username, password);
+            navigate('/'); // Redireciona para a home SEM recarregar a página
         } catch (err) {
             setError('Usuário ou senha inválidos. Tente novamente.');
         }
