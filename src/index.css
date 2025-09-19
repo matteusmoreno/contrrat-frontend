@@ -1,13 +1,45 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+:root {
+  --cor-primaria: #C7384A;
+  /* Vermelho/vinho do logo */
+  --cor-primaria-hover: #E04D5F;
+  /* Um tom mais claro para interações */
+  --cor-fundo: #121212;
+  /* Preto suave, melhor que o preto puro */
+  --cor-superficie: #1E1E1E;
+  /* Cor para cards, modais, etc. */
+  --cor-borda: #2F2F2F;
+  /* Cor para bordas sutis */
+  --texto-primario: #EAEAEA;
+  /* Branco suave para textos */
+  --texto-secundario: #A0A0A0;
+  /* Cinza para textos de menor importância */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--cor-fundo);
+  color: var(--texto-primario);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+a {
+  color: var(--cor-primaria);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--cor-primaria-hover);
 }
