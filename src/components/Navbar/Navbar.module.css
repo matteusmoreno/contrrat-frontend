@@ -1,0 +1,68 @@
+/* src/components/Navbar/Navbar.module.css */
+.navbar {
+    background-color: var(--cor-superficie);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--cor-borda);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Espaço entre a logo e o texto */
+    text-decoration: none;
+}
+
+.logo {
+    height: 40px;
+}
+
+.logoText {
+    color: var(--texto-primario);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.navLinks {
+    display: flex;
+    gap: 2rem;
+}
+
+.navLink {
+    color: var(--texto-secundario);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+
+.navLink:hover,
+.navLink.active {
+    color: var(--cor-primaria);
+}
+
+.menuIcon {
+    display: none;
+    cursor: pointer;
+    font-size: 2rem;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    .navLinks {
+        display: none;
+        /* Esconde os links em telas pequenas */
+    }
+
+    .menuIcon {
+        display: block;
+        /* Mostra o ícone de menu */
+    }
+}

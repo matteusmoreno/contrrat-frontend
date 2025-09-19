@@ -1,0 +1,48 @@
+/* src/pages/HomePage/HomePage.module.css */
+
+.heroSection {
+    text-align: center;
+    padding: 4rem 1rem;
+    margin-bottom: 3rem;
+}
+
+.heroTitle {
+    font-size: 3rem;
+    color: var(--texto-primario);
+    margin-bottom: 1rem;
+}
+
+.heroTitle span {
+    color: var(--cor-primaria);
+}
+
+.heroSubtitle {
+    font-size: 1.2rem;
+    color: var(--texto-secundario);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+.artistsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    .heroTitle {
+        font-size: 2.5rem;
+    }
+
+    .heroSection {
+        padding: 3rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .artistsGrid {
+        grid-template-columns: 1fr;
+        /* Uma coluna em telas muito pequenas */
+    }
+}
