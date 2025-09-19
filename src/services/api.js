@@ -30,4 +30,14 @@ export const getArtistById = (id) => {
     return api.get(`/artists/${id}`);
 }
 
+// **NOVO: Criar Artista**
+export const createArtist = (artistData) => {
+    return api.post('/artists', artistData);
+}
+
+// **NOVO: Criar Cliente**
+export const createCustomer = (customerData) => {
+    return api.post('/customers', customerData);
+}
+
 export default api;

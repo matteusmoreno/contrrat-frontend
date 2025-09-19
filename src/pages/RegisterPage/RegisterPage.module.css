@@ -1,0 +1,72 @@
+/* src/pages/RegisterPage/RegisterPage.module.css */
+.registerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1rem;
+}
+
+.registerForm {
+    background-color: var(--cor-superficie);
+    padding: 2.5rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid var(--cor-borda);
+}
+
+.registerForm h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.toggleContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    background-color: var(--cor-fundo);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.toggleButton {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    color: var(--texto-secundario);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.toggleButton.active {
+    background-color: var(--cor-primaria);
+    color: var(--texto-primario);
+}
+
+.error {
+    color: #ff8a8a;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.success {
+    color: #8aff8a;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.formFooter {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--texto-secundario);
+}
+
+.formFooter a {
+    color: var(--cor-primaria);
+    font-weight: 500;
+    text-decoration: underline;
+}

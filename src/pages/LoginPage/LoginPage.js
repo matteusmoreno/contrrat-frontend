@@ -52,6 +52,9 @@ const LoginPage = () => {
                 </div>
                 {error && <p className={styles.error}>{error}</p>}
                 <Button type="submit">Entrar</Button>
+                <p className={styles.formFooter}>
+                    Não tem uma conta? <Link to="/register">Cadastre-se</Link>
+                </p>
             </form>
         </div>
     );

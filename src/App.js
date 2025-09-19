@@ -1,10 +1,11 @@
 // src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar/Navbar'; // Criaremos em breve
-import HomePage from './pages/HomePage/HomePage'; // Criaremos em breve
-import LoginPage from './pages/LoginPage/LoginPage'; // Criaremos em breve
-import ArtistDetailsPage from './pages/ArtistDetailsPage/ArtistDetailsPage'; // Criaremos em breve
+import Navbar from './components/Navbar/Navbar';
+import HomePage from './pages/HomePage/HomePage';
+import LoginPage from './pages/LoginPage/LoginPage';
+import ArtistDetailsPage from './pages/ArtistDetailsPage/ArtistDetailsPage';
+import RegisterPage from './pages/RegisterPage/RegisterPage'; // **NOVO**
 import './App.css';
 
 function App() {
@@ -15,8 +16,9 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} /> {/* **NOVA ROTA** */}
           <Route path="/artistas/:id" element={<ArtistDetailsPage />} />
-          {/* Adicionar outras rotas aqui: /cadastro, /perfil, etc. */}
+          {/* Adicionar outras rotas aqui: /perfil, etc. */}
         </Routes>
       </main>
     </Router>
