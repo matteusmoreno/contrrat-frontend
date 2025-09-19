@@ -29,6 +29,29 @@
     gap: 2rem;
 }
 
+/* NOVO ESTILO PARA O LINK DO CARD */
+.cardLink {
+    text-decoration: none;
+    color: inherit;
+    /* Herda a cor do texto padrão */
+    display: flex;
+    /* Garante que o link ocupe todo o espaço do card */
+}
+
+/* NOVOS ESTILOS PARA MENSAGENS */
+.message {
+    color: var(--texto-secundario);
+    text-align: center;
+    padding: 2rem;
+}
+
+.messageError {
+    color: #ff8a8a;
+    text-align: center;
+    padding: 2rem;
+}
+
+
 /* --- Responsividade --- */
 @media (max-width: 768px) {
     .heroTitle {

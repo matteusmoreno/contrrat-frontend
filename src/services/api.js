@@ -15,19 +15,17 @@ if (token) {
 
 // --- Funções de Serviço ---
 
-// Exemplo: Login
+// Função de Login
 export const login = (username, password) => {
     return api.post('/login', { username, password });
 };
 
-// Exemplo: Buscar todos os artistas (página pública, não precisa de token)
+// ** ATUALIZADO ** para buscar todos os artistas
 export const getArtists = () => {
-    // No seu backend, você precisa criar um endpoint para listar artistas.
-    // Ex: @GetMapping("/artists") que retorna uma lista de artistas.
-    return api.get('/artists');
+    return api.get('/artists/all'); // Usando o novo endpoint
 }
 
-// Exemplo: Buscar um artista pelo ID
+// Buscar um artista pelo ID
 export const getArtistById = (id) => {
     return api.get(`/artists/${id}`);
 }

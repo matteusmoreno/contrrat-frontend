@@ -1,0 +1,83 @@
+/* src/pages/ArtistDetailsPage/ArtistDetailsPage.module.css */
+.detailsContainer {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+}
+
+.profileImage {
+    width: 300px;
+    height: 300px;
+    border-radius: 12px;
+    object-fit: cover;
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+}
+
+.infoSection {
+    flex: 1;
+}
+
+.name {
+    font-size: 2.5rem;
+    color: var(--texto-primario);
+    margin-bottom: 0.5rem;
+}
+
+.location {
+    font-size: 1.1rem;
+    color: var(--cor-primaria);
+    font-weight: 500;
+    margin-bottom: 2rem;
+}
+
+.description {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--texto-secundario);
+    margin-bottom: 2rem;
+}
+
+.contactInfo h4 {
+    font-size: 1.2rem;
+    color: var(--texto-primario);
+    border-bottom: 2px solid var(--cor-primaria);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.contactInfo p {
+    color: var(--texto-secundario);
+    margin-bottom: 0.5rem;
+}
+
+.loading,
+.error {
+    text-align: center;
+    padding: 5rem;
+    font-size: 1.2rem;
+    color: var(--texto-secundario);
+}
+
+.error {
+    color: #ff8a8a;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    .detailsContainer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profileImage {
+        width: 200px;
+        height: 200px;
+    }
+
+    .name {
+        font-size: 2rem;
+    }
+}
