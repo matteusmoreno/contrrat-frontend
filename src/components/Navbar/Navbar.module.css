@@ -16,7 +16,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    /* Espaço entre a logo e o texto */
     text-decoration: none;
 }
 
@@ -25,14 +24,19 @@
 }
 
 .logoText {
+    /* Usando a nova fonte "Pacifico" que parece escrita à mão */
+    font-family: 'Pacifico', cursive;
     color: var(--texto-primario);
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.8rem;
+    /* Aumentei um pouco para dar mais destaque */
+    font-weight: 400;
+    /* Pacifico só tem o peso 400 */
 }
 
 .navLinks {
     display: flex;
     gap: 2rem;
+    align-items: center;
 }
 
 .navLink {
@@ -54,15 +58,12 @@
     font-size: 2rem;
 }
 
-/* --- Responsividade --- */
 @media (max-width: 768px) {
     .navLinks {
         display: none;
-        /* Esconde os links em telas pequenas */
     }
 
     .menuIcon {
         display: block;
-        /* Mostra o ícone de menu */
     }
 }

@@ -1,21 +1,16 @@
 /* src/index.css */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+/* Trocando Poppins/Nunito por uma fonte mais estilizada */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 :root {
   --cor-primaria: #C7384A;
-  /* Vermelho/vinho do logo */
   --cor-primaria-hover: #E04D5F;
-  /* Um tom mais claro para interações */
   --cor-fundo: #121212;
-  /* Preto suave, melhor que o preto puro */
   --cor-superficie: #1E1E1E;
-  /* Cor para cards, modais, etc. */
   --cor-borda: #2F2F2F;
-  /* Cor para bordas sutis */
   --texto-primario: #EAEAEA;
-  /* Branco suave para textos */
   --texto-secundario: #A0A0A0;
-  /* Cinza para textos de menor importância */
 }
 
 * {

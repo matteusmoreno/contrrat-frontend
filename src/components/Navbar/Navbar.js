@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import logo from '../../assets/contrrat-logo.png';
-import { useAuth } from '../../contexts/AuthContext'; // Importe nosso hook
+import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Button/Button';
 
 const Navbar = () => {
@@ -12,7 +12,7 @@ const Navbar = () => {
 
     const handleLogout = () => {
         logout();
-        navigate('/'); // Redireciona para a home após o logout
+        navigate('/');
     };
 
     return (
@@ -48,29 +48,15 @@ const Navbar = () => {
                                 isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
                             }
                         >
-                            Olá, {user?.name.split(' ')[0]} {/* Mostra o primeiro nome */}
+                            Olá, {user?.name.split(' ')[0]}
                         </NavLink>
                         <Button onClick={handleLogout}>Sair</Button>
                     </>
                 ) : (
-                    <>
-                        <NavLink
-                            to="/login"
-                            className={({ isActive }) =>
-                                isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
-                            }
-                        >
-                            Login
-                        </NavLink>
-                        <NavLink
-                            to="/register"
-                            className={({ isActive }) =>
-                                isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
-                            }
-                        >
-                            Cadastre-se
-                        </NavLink>
-                    </>
+                    // Botão único para levar à página de login
+                    <Link to="/login">
+                        <Button>Entrar</Button>
+                    </Link>
                 )}
             </div>
             <div className={styles.menuIcon}>

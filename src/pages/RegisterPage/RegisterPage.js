@@ -10,7 +10,7 @@ const RegisterPage = () => {
     const [profileType, setProfileType] = useState('CUSTOMER');
     const [formData, setFormData] = useState({
         name: '',
-        birthDate: '', // Manterá o formato aaaa-mm-dd para o backend
+        birthDate: '',
         phoneNumber: '',
         email: '',
         password: '',
@@ -20,8 +20,11 @@ const RegisterPage = () => {
         description: '',
     });
 
-    // Novo estado para controlar o valor exibido no campo de data
-    const [displayBirthDate, setDisplayBirthDate] = useState('');
+    const [displayValues, setDisplayValues] = useState({
+        birthDate: '',
+        phoneNumber: '',
+        cep: '',
+    });
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -32,43 +35,43 @@ const RegisterPage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Função específica para lidar com a máscara e conversão da data
-    const handleBirthDateChange = (e) => {
-        const rawValue = e.target.value.replace(/\D/g, ''); // Remove tudo que não for dígito
+    const handleMaskedChange = (e) => {
+        const { name, value } = e.target;
+        const rawValue = value.replace(/\D/g, '');
         let maskedValue = rawValue;
+        let finalValue = value; // Valor a ser salvo no estado principal
 
-        // Aplica a máscara dd/mm/aaaa
-        if (rawValue.length > 2) {
-            maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2)}`;
-        }
-        if (rawValue.length > 4) {
-            maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2, 4)}/${rawValue.slice(4, 8)}`;
+        if (name === 'birthDate') {
+            if (rawValue.length > 2) maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2)}`;
+            if (rawValue.length > 4) maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2, 4)}/${rawValue.slice(4, 8)}`;
+
+            if (rawValue.length === 8) {
+                const day = rawValue.slice(0, 2);
+                const month = rawValue.slice(2, 4);
+                const year = rawValue.slice(4, 8);
+                finalValue = `${year}-${month}-${day}`;
+            } else {
+                finalValue = '';
+            }
+        } else if (name === 'phoneNumber') {
+            // CORREÇÃO: Removido o espaço e ajustado para 9º dígito
+            maskedValue = rawValue
+                .replace(/^(\d{2})(\d)/g, '($1)$2')
+                .replace(/(\d{5})(\d)/, '$1-$2');
+            finalValue = maskedValue;
+        } else if (name === 'cep') {
+            maskedValue = rawValue.replace(/(\d{5})(\d)/, '$1-$2');
+            finalValue = maskedValue;
         }
 
-        setDisplayBirthDate(maskedValue);
-
-        // Converte para o formato aaaa-mm-dd e atualiza o estado principal do formulário
-        if (rawValue.length === 8) {
-            const day = rawValue.slice(0, 2);
-            const month = rawValue.slice(2, 4);
-            const year = rawValue.slice(4, 8);
-            setFormData(prev => ({ ...prev, birthDate: `${year}-${month}-${day}` }));
-        } else {
-            // Se a data não estiver completa, limpa o valor para o backend
-            setFormData(prev => ({ ...prev, birthDate: '' }));
-        }
+        setFormData(prev => ({ ...prev, [name]: finalValue }));
+        setDisplayValues(prev => ({ ...prev, [name]: maskedValue }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
-
-        // Validação extra para garantir que a data foi preenchida corretamente
-        if (formData.birthDate.length !== 10) {
-            setError('Por favor, preencha a data de nascimento completa.');
-            return;
-        }
 
         try {
             if (profileType === 'ARTIST') {
@@ -95,46 +98,30 @@ const RegisterPage = () => {
                 <h2>Crie sua Conta</h2>
 
                 <div className={styles.toggleContainer}>
-                    <button
-                        type="button"
-                        className={`${styles.toggleButton} ${profileType === 'CUSTOMER' ? styles.active : ''}`}
-                        onClick={() => setProfileType('CUSTOMER')}
-                    >
+                    <button type="button" className={`${styles.toggleButton} ${profileType === 'CUSTOMER' ? styles.active : ''}`} onClick={() => setProfileType('CUSTOMER')}>
                         Sou Contratante
                     </button>
-                    <button
-                        type="button"
-                        className={`${styles.toggleButton} ${profileType === 'ARTIST' ? styles.active : ''}`}
-                        onClick={() => setProfileType('ARTIST')}
-                    >
+                    <button type="button" className={`${styles.toggleButton} ${profileType === 'ARTIST' ? styles.active : ''}`} onClick={() => setProfileType('ARTIST')}>
                         Sou Artista
                     </button>
                 </div>
 
-                <InputField id="name" label="Nome Completo" value={formData.name} onChange={handleChange} required />
-                <InputField id="email" label="Email" type="email" value={formData.email} onChange={handleChange} required />
-                <InputField id="password" label="Senha" type="password" value={formData.password} onChange={handleChange} required />
-
-                {/* Campo de data de nascimento modificado */}
-                <InputField
-                    id="birthDate"
-                    label="Data de Nascimento"
-                    type="text"
-                    value={displayBirthDate}
-                    onChange={handleBirthDateChange}
-                    required
-                    maxLength="10"
-                    placeholder="dd/mm/aaaa"
-                />
-
-                <InputField id="phoneNumber" label="Telefone (xx)xxxxx-xxxx" value={formData.phoneNumber} onChange={handleChange} required pattern="\(\d{2}\)\d{4,5}-\d{4}" title="Formato: (xx)xxxxx-xxxx" />
-                <InputField id="cep" label="CEP" value={formData.cep} onChange={handleChange} required pattern="\d{5}-\d{3}" title="Formato: xxxxx-xxx" />
-                <InputField id="number" label="Número" value={formData.number} onChange={handleChange} />
-                <InputField id="complement" label="Complemento" value={formData.complement} onChange={handleChange} />
+                <InputField id="name" name="name" label="Nome Completo" value={formData.name} onChange={handleChange} required />
+                <InputField id="email" name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required />
+                <InputField id="password" name="password" label="Senha" type="password" value={formData.password} onChange={handleChange} required />
+                <InputField id="birthDate" name="birthDate" label="Data de Nascimento" type="text" value={displayValues.birthDate} onChange={handleMaskedChange} required maxLength="10" placeholder="dd/mm/aaaa" />
+                <InputField id="phoneNumber" name="phoneNumber" label="Telefone" value={displayValues.phoneNumber} onChange={handleMaskedChange} required maxLength="14" placeholder="(xx)xxxxx-xxxx" />
 
                 {profileType === 'ARTIST' && (
-                    <InputField id="description" label="Descrição (Fale sobre sua arte)" value={formData.description} onChange={handleChange} />
+                    <InputField id="description" name="description" label="Descrição (Fale sobre sua arte)" value={formData.description} onChange={handleChange} />
                 )}
+
+                <div className={styles.formSection}>
+                    <h3>Endereço</h3>
+                    <InputField id="cep" name="cep" label="CEP" value={displayValues.cep} onChange={handleMaskedChange} required maxLength="9" placeholder="xxxxx-xxx" />
+                    <InputField id="number" name="number" label="Número" value={formData.number} onChange={handleChange} required />
+                    <InputField id="complement" name="complement" label="Complemento (Opcional)" value={formData.complement} onChange={handleChange} />
+                </div>
 
                 {error && <p className={styles.error}>{error}</p>}
                 {success && <p className={styles.success}>{success}</p>}

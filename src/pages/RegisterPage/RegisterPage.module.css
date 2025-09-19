@@ -47,6 +47,22 @@
     color: var(--texto-primario);
 }
 
+/* NOVO ESTILO PARA SEÇÃO DE ENDEREÇO */
+.formSection {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.formSection h3 {
+    font-size: 1rem;
+    color: var(--texto-secundario);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 .error {
     color: #ff8a8a;
     text-align: center;
