@@ -17,12 +17,51 @@
     border-bottom: 1px solid var(--cor-borda);
 }
 
+.imageContainer {
+    position: relative;
+    cursor: pointer;
+}
+
 .profileImage {
     width: 150px;
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
     background-color: var(--cor-fundo);
+    transition: filter 0.2s;
+}
+
+.imageContainer:hover .profileImage {
+    filter: brightness(0.5);
+}
+
+.imageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+.imageContainer:hover .imageOverlay {
+    opacity: 1;
+}
+
+.imageOverlay span {
+    font-weight: 500;
+}
+
+.hiddenInput {
+    display: none;
 }
 
 .headerInfo h1 {
@@ -39,6 +78,24 @@
     font-size: 1.5rem;
     color: var(--cor-primaria);
     margin-bottom: 1.5rem;
+}
+
+.artistDescription {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.artistDescription h2 {
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1rem;
+}
+
+.artistDescription p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--texto-secundario);
 }
 
 .detailsGrid {
@@ -75,6 +132,21 @@
 
 .error {
     color: #ff8a8a;
+}
+
+.imageLoader {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid var(--cor-borda);
+    border-top-color: var(--cor-primaria);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @media (max-width: 768px) {

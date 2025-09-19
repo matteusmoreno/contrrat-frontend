@@ -31,7 +31,6 @@ export const createArtist = (artistData) => {
     return api.post('/artists', artistData);
 };
 
-// Adicionando a exportação que faltava
 export const createCustomer = (customerData) => {
     return api.post('/customers', customerData);
 };
@@ -39,6 +38,37 @@ export const createCustomer = (customerData) => {
 export const getProfile = (profileType, id) => {
     const endpoint = profileType === 'ARTIST' ? `/artists/${id}` : `/customers/${id}`;
     return api.get(endpoint);
+};
+
+export const uploadImage = async (file) => {
+    const signatureResponse = await api.get('/signature');
+    const { signature, timestamp, api_key, cloud_name } = signatureResponse.data;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('signature', signature);
+    formData.append('timestamp', timestamp);
+    formData.append('api_key', api_key);
+
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`;
+
+    const uploadResponse = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(`Falha no upload da imagem: ${errorData.error.message}`);
+    }
+
+    const responseData = await uploadResponse.json();
+    return responseData.secure_url;
+};
+
+export const updateProfilePicture = (profileType, imageUrl) => {
+    const endpoint = profileType === 'ARTIST' ? '/artists/picture' : '/customers/picture';
+    return api.patch(endpoint, { profilePictureUrl: imageUrl });
 };
 
 export default api;
