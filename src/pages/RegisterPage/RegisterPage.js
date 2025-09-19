@@ -2,23 +2,27 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './RegisterPage.module.css';
-import { createArtist, createCustomer } from '../../services/api'; // Criaremos em breve
+import { createArtist, createCustomer } from '../../services/api';
 import Button from '../../components/Button/Button';
 import InputField from '../../components/InputField/InputField';
 
 const RegisterPage = () => {
-    const [profileType, setProfileType] = useState('CUSTOMER'); // ou 'ARTIST'
+    const [profileType, setProfileType] = useState('CUSTOMER');
     const [formData, setFormData] = useState({
         name: '',
-        birthDate: '',
+        birthDate: '', // Manterá o formato aaaa-mm-dd para o backend
         phoneNumber: '',
         email: '',
         password: '',
         cep: '',
         number: '',
         complement: '',
-        description: '', // Apenas para artistas
+        description: '',
     });
+
+    // Novo estado para controlar o valor exibido no campo de data
+    const [displayBirthDate, setDisplayBirthDate] = useState('');
+
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
@@ -28,17 +32,49 @@ const RegisterPage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    // Função específica para lidar com a máscara e conversão da data
+    const handleBirthDateChange = (e) => {
+        const rawValue = e.target.value.replace(/\D/g, ''); // Remove tudo que não for dígito
+        let maskedValue = rawValue;
+
+        // Aplica a máscara dd/mm/aaaa
+        if (rawValue.length > 2) {
+            maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2)}`;
+        }
+        if (rawValue.length > 4) {
+            maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2, 4)}/${rawValue.slice(4, 8)}`;
+        }
+
+        setDisplayBirthDate(maskedValue);
+
+        // Converte para o formato aaaa-mm-dd e atualiza o estado principal do formulário
+        if (rawValue.length === 8) {
+            const day = rawValue.slice(0, 2);
+            const month = rawValue.slice(2, 4);
+            const year = rawValue.slice(4, 8);
+            setFormData(prev => ({ ...prev, birthDate: `${year}-${month}-${day}` }));
+        } else {
+            // Se a data não estiver completa, limpa o valor para o backend
+            setFormData(prev => ({ ...prev, birthDate: '' }));
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
 
+        // Validação extra para garantir que a data foi preenchida corretamente
+        if (formData.birthDate.length !== 10) {
+            setError('Por favor, preencha a data de nascimento completa.');
+            return;
+        }
+
         try {
-            let response;
             if (profileType === 'ARTIST') {
-                response = await createArtist(formData);
+                await createArtist(formData);
             } else {
-                response = await createCustomer(formData);
+                await createCustomer(formData);
             }
 
             setSuccess('Cadastro realizado com sucesso! Você será redirecionado para o login.');
@@ -78,7 +114,19 @@ const RegisterPage = () => {
                 <InputField id="name" label="Nome Completo" value={formData.name} onChange={handleChange} required />
                 <InputField id="email" label="Email" type="email" value={formData.email} onChange={handleChange} required />
                 <InputField id="password" label="Senha" type="password" value={formData.password} onChange={handleChange} required />
-                <InputField id="birthDate" label="Data de Nascimento" type="date" value={formData.birthDate} onChange={handleChange} required />
+
+                {/* Campo de data de nascimento modificado */}
+                <InputField
+                    id="birthDate"
+                    label="Data de Nascimento"
+                    type="text"
+                    value={displayBirthDate}
+                    onChange={handleBirthDateChange}
+                    required
+                    maxLength="10"
+                    placeholder="dd/mm/aaaa"
+                />
+
                 <InputField id="phoneNumber" label="Telefone (xx)xxxxx-xxxx" value={formData.phoneNumber} onChange={handleChange} required pattern="\(\d{2}\)\d{4,5}-\d{4}" title="Formato: (xx)xxxxx-xxxx" />
                 <InputField id="cep" label="CEP" value={formData.cep} onChange={handleChange} required pattern="\d{5}-\d{3}" title="Formato: xxxxx-xxx" />
                 <InputField id="number" label="Número" value={formData.number} onChange={handleChange} />

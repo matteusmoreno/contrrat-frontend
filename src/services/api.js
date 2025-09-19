@@ -1,43 +1,50 @@
 // src/services/api.js
 import axios from 'axios';
 
-// O token JWT será armazenado no localStorage do navegador
-const token = localStorage.getItem('authToken');
-
 const api = axios.create({
-    baseURL: 'http://localhost:8686', // A URL base do seu backend
+    baseURL: 'http://localhost:8686',
 });
 
-// Isso adiciona o token em TODAS as requisições que forem feitas
-if (token) {
-    api.defaults.headers.authorization = `Bearer ${token}`;
-}
+// Usando um interceptor para adicionar o token dinamicamente a cada requisição
+// Isso é mais robusto do que definir o header apenas uma vez.
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
 
 // --- Funções de Serviço ---
 
-// Função de Login
 export const login = (username, password) => {
     return api.post('/login', { username, password });
 };
 
-// ** ATUALIZADO ** para buscar todos os artistas
 export const getArtists = () => {
-    return api.get('/artists/all'); // Usando o novo endpoint
-}
+    return api.get('/artists/all');
+};
 
-// Buscar um artista pelo ID
 export const getArtistById = (id) => {
     return api.get(`/artists/${id}`);
-}
+};
 
-// **NOVO: Criar Artista**
 export const createArtist = (artistData) => {
     return api.post('/artists', artistData);
-}
+};
 
-// **NOVO: Criar Cliente**
 export const createCustomer = (customerData) => {
     return api.post('/customers', customerData);
-}
+};
+
+// **NOVO: Buscar perfil do usuário logado (artista ou cliente)**
+export const getProfile = (profileType, id) => {
+    const endpoint = profileType === 'ARTIST' ? `/artists/${id}` : `/customers/${id}`;
+    return api.get(endpoint);
+};
+
 
 export default api;

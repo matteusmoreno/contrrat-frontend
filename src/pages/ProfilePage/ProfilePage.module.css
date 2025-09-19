@@ -1,0 +1,85 @@
+/* src/pages/ProfilePage/ProfilePage.module.css */
+.profileContainer {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+}
+
+.profileHeader {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.profileImage {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--cor-fundo);
+}
+
+.headerInfo h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.headerInfo p {
+    font-size: 1.1rem;
+    color: var(--texto-secundario);
+}
+
+.profileDetails h2 {
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1.5rem;
+}
+
+.detailsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.detailItem {
+    background-color: var(--cor-fundo);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.detailItem label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--texto-secundario);
+    margin-bottom: 0.25rem;
+}
+
+.detailItem p {
+    font-size: 1rem;
+    color: var(--texto-primario);
+}
+
+.loading,
+.error {
+    text-align: center;
+    padding: 5rem;
+    font-size: 1.2rem;
+    color: var(--texto-secundario);
+}
+
+.error {
+    color: #ff8a8a;
+}
+
+@media (max-width: 768px) {
+    .profileHeader {
+        flex-direction: column;
+        text-align: center;
+    }
+}

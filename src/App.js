@@ -6,8 +6,9 @@ import HomePage from './pages/HomePage/HomePage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import ArtistDetailsPage from './pages/ArtistDetailsPage/ArtistDetailsPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
-import ArtistsPage from './pages/ArtistsPage/ArtistsPage'; // Novo
-import ProfilePage from './pages/ProfilePage/ProfilePage'; // Novo
+import ArtistsPage from './pages/ArtistsPage/ArtistsPage';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
+import ProtectedRoute from './components/auth/ProtectedRoute'; // Importe o componente
 import './App.css';
 
 function App() {
@@ -16,12 +17,18 @@ function App() {
       <Navbar />
       <main className="main-container">
         <Routes>
+          {/* Rotas Públicas */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/artistas" element={<ArtistsPage />} /> {/* Nova Rota */}
+          <Route path="/artistas" element={<ArtistsPage />} />
           <Route path="/artistas/:id" element={<ArtistDetailsPage />} />
-          <Route path="/perfil" element={<ProfilePage />} /> {/* Nova Rota */}
+
+          {/* Rotas Protegidas */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/perfil" element={<ProfilePage />} />
+            {/* Adicione aqui outras rotas que precisam de login */}
+          </Route>
         </Routes>
       </main>
     </Router>
