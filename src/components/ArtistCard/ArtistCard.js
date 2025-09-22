@@ -14,7 +14,7 @@ const ArtistCard = ({ artist }) => {
 
     return (
         <div className={styles.card}>
-            <img src={placeholderImage} alt={artist.name} className={styles.cardImage} />
+            <img src={artist.profilePictureUrl || placeholderImage} alt={artist.name} className={styles.cardImage} />
             <div className={styles.cardContent}>
                 <h3>{artist.name}</h3>
                 <p className={styles.description}>

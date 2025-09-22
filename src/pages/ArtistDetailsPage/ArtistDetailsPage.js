@@ -45,7 +45,7 @@ const ArtistDetailsPage = () => {
 
     return (
         <div className={styles.detailsContainer}>
-            <img src={placeholderImage} alt={artist.name} className={styles.profileImage} />
+            <img src={artist.profilePictureUrl || placeholderImage} alt={artist.name} className={styles.profileImage} />
             <div className={styles.infoSection}>
                 <h1 className={styles.name}>{artist.name}</h1>
                 <p className={styles.location}>{artist.address.city}, {artist.address.state}</p>
