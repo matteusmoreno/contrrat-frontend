@@ -1,0 +1,36 @@
+/* src/components/AvailabilityModal/AvailabilityModal.module.css */
+.container {
+    padding: 1rem;
+    min-width: 350px;
+}
+
+.container h3 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: var(--texto-primario);
+}
+
+.dateLabel {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--cor-primaria);
+    font-weight: 500;
+}
+
+.timeInputs {
+    display: flex;
+    gap: 1rem;
+}
+
+.buttons {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.error {
+    color: #ff8a8a;
+    text-align: center;
+    margin-top: 1rem;
+}

@@ -42,6 +42,16 @@ const Navbar = () => {
 
                 {isAuthenticated ? (
                     <>
+                        {user?.scope === 'ARTIST' && (
+                            <NavLink
+                                to="/dashboard/artista"
+                                className={({ isActive }) =>
+                                    isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+                                }
+                            >
+                                Minha Agenda
+                            </NavLink>
+                        )}
                         <NavLink
                             to="/perfil"
                             className={({ isActive }) =>
@@ -53,7 +63,6 @@ const Navbar = () => {
                         <Button onClick={handleLogout}>Sair</Button>
                     </>
                 ) : (
-                    // Botão único para levar à página de login
                     <Link to="/login">
                         <Button>Entrar</Button>
                     </Link>
