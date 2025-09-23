@@ -1,8 +1,9 @@
 /* src/components/AvailabilityModal/AvailabilityModal.module.css */
 .container {
-    padding: 1rem;
+    padding: 1.5rem 2rem;
     width: 100%;
-    max-width: 600px;
+    /* Modal ainda mais largo para um layout premium */
+    min-width: 1100px;
 }
 
 .container h3 {
@@ -13,59 +14,102 @@
 
 .dateLabel {
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     color: var(--cor-primaria);
     font-weight: 500;
 }
 
 .hoursGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 1rem;
+    /* 8 colunas para aproveitar o espaço horizontal */
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 1.5rem 1rem;
     margin-bottom: 1.5rem;
 }
 
+/* Alteração crucial: O slot tem altura mínima fixa para NUNCA mudar o tamanho do modal */
 .hourSlot {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.5rem;
+    min-height: 110px;
+    /* Garante espaço para o botão e o input, evitando "pulos" */
+    justify-content: flex-start;
 }
 
 .hourButton {
     width: 100%;
-    padding: 10px;
+    height: 65px;
     border: 1px solid var(--cor-borda);
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     background-color: var(--cor-fundo);
     color: var(--texto-secundario);
-    transition: all 0.2s;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    padding: 4px;
+}
+
+.hourButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hourText {
+    font-weight: 500;
+}
+
+.priceText {
+    font-size: 0.8rem;
+    color: var(--texto-secundario);
+    margin-top: 4px;
+    font-weight: 400;
 }
 
 .hourButton.available {
-    background-color: rgba(74, 222, 128, 0.2);
+    background-color: rgba(74, 222, 128, 0.1);
     border-color: #4ade80;
     color: var(--texto-primario);
 }
 
+.hourButton.available .priceText {
+    color: #a7f3d0;
+    opacity: 0.9;
+}
+
 .hourButton.unavailable {
-    background-color: rgba(248, 113, 113, 0.2);
+    background-color: rgba(248, 113, 113, 0.1);
     border-color: #f87171;
     color: var(--texto-primario);
 }
 
 .hourButton.booked,
 .hourButton.past {
-    background-color: rgba(96, 165, 250, 0.2);
+    background-color: rgba(96, 165, 250, 0.1);
     border-color: #60a5fa;
     color: var(--texto-primario);
     cursor: not-allowed;
     opacity: 0.6;
 }
 
+/* Área para o input com altura fixa para manter o layout estável */
+.slotActionArea {
+    height: 40px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .priceInput {
     width: 100%;
+    max-width: 100px;
+    /* Limita a largura do input */
     padding: 8px;
     border-radius: 6px;
     border: 1px solid var(--cor-borda);
@@ -76,9 +120,9 @@
 }
 
 .buttons {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 1rem;
 }
 
@@ -92,8 +136,9 @@
 .legend {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 1.5rem;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     font-size: 0.8rem;
     color: var(--texto-secundario);
 }
@@ -108,6 +153,11 @@
     width: 15px;
     height: 15px;
     border-radius: 3px;
+    border: 1px solid var(--cor-borda);
+}
+
+.legendColor.free {
+    background-color: var(--cor-fundo);
 }
 
 .legendColor.available {
