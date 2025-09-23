@@ -48,6 +48,8 @@ const ArtistDetailsPage = () => {
             <img src={artist.profilePictureUrl || placeholderImage} alt={artist.name} className={styles.profileImage} />
             <div className={styles.infoSection}>
                 <h1 className={styles.name}>{artist.name}</h1>
+                {/* LINHA ADICIONADA: Mostra a área de atuação */}
+                {artist.artisticField && <h2 className={styles.artisticField}>{artist.artisticField}</h2>}
                 <p className={styles.location}>{artist.address.city}, {artist.address.state}</p>
                 <p className={styles.description}>{artist.description}</p>
                 <div className={styles.contactInfo}>

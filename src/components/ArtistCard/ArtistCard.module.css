@@ -33,7 +33,16 @@
 .cardContent h3 {
     font-size: 1.25rem;
     color: var(--texto-primario);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+    /* Reduzido para aproximar do campo de atuação */
+}
+
+/* NOVO ESTILO ADICIONADO */
+.artisticField {
+    color: var(--cor-primaria);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
 }
 
 .description {

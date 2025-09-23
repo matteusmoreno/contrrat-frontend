@@ -189,7 +189,8 @@ const ProfilePage = () => {
                     </div>
                     <div className={styles.headerInfo}>
                         <h1>{profileData.name}</h1>
-                        <p>{user.scope === 'ARTIST' ? 'Artista' : 'Contratante'}</p>
+                        {/* Alteração: Mostra a área de atuação se for um artista */}
+                        <p>{user.scope === 'ARTIST' ? profileData.artisticField : 'Contratante'}</p>
                     </div>
                 </header>
 

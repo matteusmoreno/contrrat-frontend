@@ -1,0 +1,57 @@
+/* src/components/AutocompleteInput/AutocompleteInput.module.css */
+.wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--texto-secundario);
+    font-weight: 500;
+}
+
+.input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo);
+    color: var(--texto-primario);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 2px rgba(199, 56, 74, 0.2);
+}
+
+.suggestionsList {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    list-style: none;
+    padding: 0;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.suggestionsList li {
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestionsList li:hover {
+    background-color: var(--cor-primaria);
+    color: var(--texto-primario);
+}

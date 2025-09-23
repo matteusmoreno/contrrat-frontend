@@ -87,5 +87,10 @@ export const deleteAvailability = (id) => {
     return api.delete(`/availability/${id}`);
 };
 
+// NOVO MÉTODO ADICIONADO
+export const getArtisticFields = () => {
+    return api.get('/artists/artistic-fields');
+};
+
 
 export default api;

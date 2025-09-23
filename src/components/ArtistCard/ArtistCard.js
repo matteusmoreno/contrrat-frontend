@@ -17,6 +17,8 @@ const ArtistCard = ({ artist }) => {
             <img src={artist.profilePictureUrl || placeholderImage} alt={artist.name} className={styles.cardImage} />
             <div className={styles.cardContent}>
                 <h3>{artist.name}</h3>
+                {/* LINHA ADICIONADA: Mostra a área de atuação */}
+                {artist.artisticField && <p className={styles.artisticField}>{artist.artisticField}</p>}
                 <p className={styles.description}>
                     {truncateDescription(artist.description, 100)}
                 </p>

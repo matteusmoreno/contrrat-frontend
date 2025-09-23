@@ -22,13 +22,20 @@
 .name {
     font-size: 2.5rem;
     color: var(--texto-primario);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+/* NOVO ESTILO ADICIONADO */
+.artisticField {
+    font-size: 1.2rem;
+    color: var(--cor-primaria);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
 }
 
 .location {
     font-size: 1.1rem;
-    color: var(--cor-primaria);
-    font-weight: 500;
+    color: var(--texto-secundario);
     margin-bottom: 2rem;
 }
 

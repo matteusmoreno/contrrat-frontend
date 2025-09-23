@@ -1,13 +1,14 @@
 // src/pages/RegisterPage/RegisterPage.js
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import styles from './RegisterPage.module.css';
-import { createArtist, createCustomer, uploadImage } from '../../services/api';
+import { createArtist, createCustomer, uploadImage, getArtisticFields } from '../../services/api';
 import Button from '../../components/Button/Button';
 import InputField from '../../components/InputField/InputField';
 import Modal from '../../components/Modal/Modal';
+import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput'; // Supondo que você criou este componente
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Foto+de+Perfil";
 
@@ -24,18 +25,19 @@ const RegisterPage = () => {
         complement: '',
         description: '',
         profilePictureUrl: '',
+        artisticField: '', // Adicionado
     });
     const [displayValues, setDisplayValues] = useState({
         birthDate: '',
         phoneNumber: '',
         cep: '',
     });
+    const [artisticFieldOptions, setArtisticFieldOptions] = useState([]); // Adicionado
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    // Estados para o cropper de imagem
     const [imgSrc, setImgSrc] = useState('');
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState(null);
@@ -45,9 +47,25 @@ const RegisterPage = () => {
     const fileInputRef = useRef(null);
     const imgRef = useRef(null);
 
+    useEffect(() => {
+        const fetchFields = async () => {
+            try {
+                const response = await getArtisticFields();
+                setArtisticFieldOptions(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar áreas de atuação:", error);
+            }
+        };
+        fetchFields();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleArtisticFieldSelect = (option) => {
+        setFormData(prev => ({ ...prev, artisticField: option.name }));
     };
 
     const handleMaskedChange = (e) => {
@@ -140,7 +158,7 @@ const RegisterPage = () => {
             }
             try {
                 const imageUrl = await uploadImage(blob);
-                setFormData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
+                // Atualiza o estado aqui, mas chama o submit com os dados mais recentes
                 await submitRegistration({ ...formData, profilePictureUrl: imageUrl });
             } catch (err) {
                 setError("Falha no upload da imagem. Tente novamente.");
@@ -170,11 +188,11 @@ const RegisterPage = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+        setIsSubmitting(true);
 
-        if (selectedFile) {
+        if (selectedFile && !formData.profilePictureUrl) {
             handleCropAndSetUrl();
         } else {
-            setIsSubmitting(true);
             await submitRegistration(formData);
         }
     };
@@ -230,7 +248,15 @@ const RegisterPage = () => {
                     <InputField id="phoneNumber" name="phoneNumber" label="Telefone" value={displayValues.phoneNumber} onChange={handleMaskedChange} required maxLength="14" placeholder="(xx)xxxxx-xxxx" />
 
                     {profileType === 'ARTIST' && (
-                        <InputField id="description" name="description" label="Descrição (Fale sobre sua arte)" value={formData.description} onChange={handleChange} />
+                        <>
+                            <AutocompleteInput
+                                label="Área de Atuação"
+                                options={artisticFieldOptions}
+                                onSelect={handleArtisticFieldSelect}
+                                required
+                            />
+                            <InputField id="description" name="description" label="Descrição (Fale sobre sua arte)" value={formData.description} onChange={handleChange} />
+                        </>
                     )}
 
                     <div className={styles.formSection}>
