@@ -1,0 +1,70 @@
+/* src/components/TodaySchedule/TodaySchedule.module.css */
+.todayContainer {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.header h3 {
+    font-size: 1.5rem;
+    color: var(--texto-primario);
+}
+
+.hoursGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.75rem;
+}
+
+.hourSlot {
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.hourText {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.priceText {
+    font-size: 0.8rem;
+    color: #a7f3d0;
+}
+
+.hourSlot.free {
+    background-color: var(--cor-fundo);
+    color: var(--texto-secundario);
+    opacity: 0.6;
+}
+
+.hourSlot.available {
+    background-color: rgba(74, 222, 128, 0.1);
+    border-color: #4ade80;
+    color: var(--texto-primario);
+}
+
+.hourSlot.unavailable {
+    background-color: rgba(248, 113, 113, 0.1);
+    border-color: #f87171;
+    color: var(--texto-primario);
+}
+
+.hourSlot.booked {
+    background-color: rgba(96, 165, 250, 0.1);
+    border-color: #60a5fa;
+    color: var(--texto-primario);
+}

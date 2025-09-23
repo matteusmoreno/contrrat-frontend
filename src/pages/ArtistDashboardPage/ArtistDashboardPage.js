@@ -1,44 +1,49 @@
 // src/pages/ArtistDashboardPage/ArtistDashboardPage.js
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './ArtistDashboardPage.module.css';
-import Calendar from '../../components/Calendar/Calendar';
 import HourAvailabilityModal from '../../components/AvailabilityModal/AvailabilityModal';
-import { getAllAvailabilityByArtistId } from '../../services/api';
+import ProfileSummary from '../../components/ProfileSummary/ProfileSummary';
+import TodaySchedule from '../../components/TodaySchedule/TodaySchedule';
+import Button from '../../components/Button/Button';
+import { getAllAvailabilityByArtistId, getProfile } from '../../services/api';
 
 const ArtistDashboardPage = () => {
     const { user } = useAuth();
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [profileData, setProfileData] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
     const [availabilities, setAvailabilities] = useState([]);
 
-    const fetchAvailabilities = useCallback(async () => {
+    const fetchArtistData = useCallback(async () => {
         if (user?.artistId) {
             try {
-                // O endpoint retorna uma paginação, então pegamos o 'content'
-                const response = await getAllAvailabilityByArtistId(user.artistId);
-                setAvailabilities(response.data.content || []);
+                const [availResponse, profileResponse] = await Promise.all([
+                    getAllAvailabilityByArtistId(user.artistId),
+                    getProfile('ARTIST', user.artistId)
+                ]);
+                setAvailabilities(availResponse.data.content || []);
+                setProfileData(profileResponse.data);
             } catch (error) {
-                console.error("Erro ao buscar disponibilidades:", error);
+                console.error("Erro ao buscar dados do artista:", error);
             }
         }
     }, [user]);
 
     useEffect(() => {
-        fetchAvailabilities();
-    }, [fetchAvailabilities]);
+        fetchArtistData();
+    }, [fetchArtistData]);
 
-    const handleDateClick = (date) => {
-        setSelectedDate(date);
+    const handleEditToday = () => {
+        setSelectedDate(new Date());
         setIsModalOpen(true);
     };
 
     const handleModalClose = () => {
         setIsModalOpen(false);
         setSelectedDate(null);
-        // Atualiza a lista de disponibilidades após fechar o modal
-        fetchAvailabilities();
+        fetchArtistData();
     };
 
     const getAvailabilitiesForDate = (date) => {
@@ -49,11 +54,16 @@ const ArtistDashboardPage = () => {
         });
     };
 
-    const months = Array.from({ length: 12 }, (_, i) => i);
+    if (!user || (user.scope !== 'ARTIST' && !profileData)) {
+        return <div className={styles.container}><p>Carregando...</p></div>;
+    }
 
-    if (user?.scope !== 'ARTIST') {
+    if (user.scope !== 'ARTIST') {
         return <div className={styles.container}><p>Acesso negado. Esta página é apenas para artistas.</p></div>;
     }
+
+    const today = new Date();
+    const todayAvailabilities = getAvailabilitiesForDate(today);
 
     return (
         <>
@@ -64,29 +74,27 @@ const ArtistDashboardPage = () => {
                 artistId={user.artistId}
                 existingAvailabilities={getAvailabilitiesForDate(selectedDate)}
             />
-            <div className={styles.container}>
-                <header className={styles.header}>
-                    <h1>Minha Agenda</h1>
-                    <p>Selecione uma data para adicionar seus horários disponíveis.</p>
-                </header>
+            <div className={styles.dashboardGrid}>
+                <aside className={styles.sidebar}>
+                    <ProfileSummary profileData={profileData} />
+                </aside>
 
-                <div className={styles.yearSelector}>
-                    <button onClick={() => setCurrentYear(currentYear - 1)}>&lt;</button>
-                    <h2>{currentYear}</h2>
-                    <button onClick={() => setCurrentYear(currentYear + 1)}>&gt;</button>
-                </div>
+                <main className={styles.mainContent}>
+                    <TodaySchedule
+                        todayAvailabilities={todayAvailabilities}
+                        onEditClick={handleEditToday}
+                    />
 
-                <div className={styles.calendarsGrid}>
-                    {months.map(monthIndex => (
-                        <Calendar
-                            key={monthIndex}
-                            year={currentYear}
-                            month={monthIndex}
-                            onDateClick={handleDateClick}
-                            availabilities={availabilities}
-                        />
-                    ))}
-                </div>
+                    <div className={styles.fullScheduleSection}>
+                        <div className={styles.header}>
+                            <h3>Gerenciamento Completo</h3>
+                            <p>Acesse sua agenda completa para gerenciar todos os dias do ano.</p>
+                            <Link to="/minha-agenda">
+                                <Button>Ver Calendário Completo</Button>
+                            </Link>
+                        </div>
+                    </div>
+                </main>
             </div>
         </>
     );

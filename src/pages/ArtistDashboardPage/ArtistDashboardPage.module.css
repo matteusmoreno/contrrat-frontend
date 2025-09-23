@@ -1,62 +1,56 @@
 /* src/pages/ArtistDashboardPage/ArtistDashboardPage.module.css */
-.container {
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    /* Coluna lateral fixa e principal flexível */
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.sidebar {
+    position: sticky;
+    top: 100px;
+    /* Ajuste conforme a altura do seu Navbar */
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.fullScheduleSection {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
     padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
 }
 
 .header {
-    text-align: center;
-    margin-bottom: 2rem;
+    text-align: left;
 }
 
-.header h1 {
-    font-size: 2.5rem;
+.header h3 {
+    font-size: 1.5rem;
     color: var(--texto-primario);
     margin-bottom: 0.5rem;
 }
 
 .header p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--texto-secundario);
+    margin-bottom: 1.5rem;
 }
 
-.yearSelector {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
+/* Responsividade */
+@media (max-width: 1024px) {
+    .dashboardGrid {
+        grid-template-columns: 1fr;
+        /* Coluna única em telas menores */
+    }
 
-.yearSelector h2 {
-    font-size: 2rem;
-    color: var(--cor-primaria);
-}
-
-.yearSelector button {
-    background: none;
-    border: 1px solid var(--cor-borda);
-    color: var(--texto-primario);
-    font-size: 1.5rem;
-    cursor: pointer;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s, border-color 0.2s;
-}
-
-.yearSelector button:hover {
-    background-color: var(--cor-superficie);
-    border-color: var(--cor-primaria);
-}
-
-.calendarsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
-    justify-content: center;
+    .sidebar {
+        position: static;
+        /* Remove o 'sticky' */
+    }
 }

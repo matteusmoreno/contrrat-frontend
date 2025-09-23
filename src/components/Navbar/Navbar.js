@@ -42,18 +42,9 @@ const Navbar = () => {
 
                 {isAuthenticated ? (
                     <>
-                        {user?.scope === 'ARTIST' && (
-                            <NavLink
-                                to="/dashboard/artista"
-                                className={({ isActive }) =>
-                                    isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
-                                }
-                            >
-                                Minha Agenda
-                            </NavLink>
-                        )}
+                        {/* O link agora aponta para o novo Dashboard e o texto é mais direto */}
                         <NavLink
-                            to="/perfil"
+                            to={user?.scope === 'ARTIST' ? "/dashboard/artista" : "/perfil"}
                             className={({ isActive }) =>
                                 isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
                             }

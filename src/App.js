@@ -9,7 +9,8 @@ import RegisterPage from './pages/RegisterPage/RegisterPage';
 import ArtistsPage from './pages/ArtistsPage/ArtistsPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import ArtistDashboardPage from './pages/ArtistDashboardPage/ArtistDashboardPage'; // Importe a nova página
+import ArtistDashboardPage from './pages/ArtistDashboardPage/ArtistDashboardPage';
+import MinhaAgendaPage from './pages/MinhaAgendaPage/MinhaAgendaPage'; // Importe a nova página de agenda
 import './App.css';
 
 function App() {
@@ -28,8 +29,9 @@ function App() {
           {/* Rotas Protegidas */}
           <Route element={<ProtectedRoute />}>
             <Route path="/perfil" element={<ProfilePage />} />
-            <Route path="/dashboard/artista" element={<ArtistDashboardPage />} /> {/* Adicione a nova rota */}
-            {/* Adicione aqui outras rotas que precisam de login */}
+            <Route path="/dashboard/artista" element={<ArtistDashboardPage />} />
+            {/* Nova rota para a agenda completa */}
+            <Route path="/minha-agenda" element={<MinhaAgendaPage />} />
           </Route>
         </Routes>
       </main>
