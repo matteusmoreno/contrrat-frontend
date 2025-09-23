@@ -6,6 +6,19 @@ import PriceInput from '../PriceInput/PriceInput';
 import styles from './AvailabilityModal.module.css';
 import { createAvailability, updateAvailability, deleteAvailability } from '../../services/api';
 
+// Helper function to format a Date object into a local ISO-like string (YYYY-MM-DDTHH:mm:ss)
+const formatAsLocalDateTime = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
+
+
 const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvailabilities }) => {
     const [initialAvailabilities, setInitialAvailabilities] = useState({});
     const [currentAvailabilities, setCurrentAvailabilities] = useState({});
@@ -19,6 +32,7 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
         }
 
         existingAvailabilities.forEach(avail => {
+            // No frontend, sempre convertemos a string de data para um objeto Date
             const startHour = new Date(avail.startTime).getHours();
             initial[startHour] = {
                 id: avail.id,
@@ -93,8 +107,8 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
 
                 promises.push(createAvailability({
                     artistId,
-                    startTime: startTime.toISOString(),
-                    endTime: endTime.toISOString(),
+                    startTime: formatAsLocalDateTime(startTime),
+                    endTime: formatAsLocalDateTime(endTime),
                     price: current.status === 'AVAILABLE' ? current.price : null,
                     availabilityStatus: current.status
                 }));
@@ -109,8 +123,8 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
 
                 promises.push(updateAvailability({
                     id: initial.id,
-                    startTime: startTime.toISOString(),
-                    endTime: endTime.toISOString(),
+                    startTime: formatAsLocalDateTime(startTime),
+                    endTime: formatAsLocalDateTime(endTime),
                     price: current.status === 'AVAILABLE' ? current.price : null,
                     availabilityStatus: current.status
                 }));
@@ -142,12 +156,19 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                     {Object.keys(currentAvailabilities).map(hourStr => {
                         const hour = parseInt(hourStr, 10);
                         const availability = currentAvailabilities[hour];
+
+                        const now = new Date();
+                        const slotDateTime = new Date(date);
+                        slotDateTime.setHours(hour, 59, 59, 999); // Considera o final da hora
+
+                        const isPastHour = now > slotDateTime;
+
                         return (
                             <div key={hour} className={styles.hourSlot}>
                                 <button
                                     onClick={() => handleHourClick(hour)}
-                                    className={`${styles.hourButton} ${styles[(availability.status || 'FREE').toLowerCase()]}`}
-                                    disabled={availability.status === 'BOOKED'}
+                                    className={`${styles.hourButton} ${styles[(availability.status || 'FREE').toLowerCase()]} ${isPastHour ? styles.past : ''}`}
+                                    disabled={availability.status === 'BOOKED' || isPastHour}
                                 >
                                     {`${String(hour).padStart(2, '0')}:00`}
                                 </button>
