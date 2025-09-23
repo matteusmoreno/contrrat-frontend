@@ -71,4 +71,8 @@ export const updateProfilePicture = (profileType, imageUrl) => {
     return api.patch(endpoint, { profilePictureUrl: imageUrl });
 };
 
+export const createAvailability = (availabilityData) => {
+    return api.post('/availability', availabilityData);
+};
+
 export default api;
