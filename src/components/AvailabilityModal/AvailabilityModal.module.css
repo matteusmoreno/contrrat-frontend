@@ -1,7 +1,8 @@
 /* src/components/AvailabilityModal/AvailabilityModal.module.css */
 .container {
     padding: 1rem;
-    min-width: 350px;
+    width: 100%;
+    max-width: 600px;
 }
 
 .container h3 {
@@ -17,9 +18,59 @@
     font-weight: 500;
 }
 
-.timeInputs {
-    display: flex;
+.hoursGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.hourSlot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hourButton {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: var(--cor-fundo);
+    color: var(--texto-secundario);
+    transition: all 0.2s;
+}
+
+.hourButton.available {
+    background-color: rgba(74, 222, 128, 0.2);
+    border-color: #4ade80;
+    color: var(--texto-primario);
+}
+
+.hourButton.unavailable {
+    background-color: rgba(248, 113, 113, 0.2);
+    border-color: #f87171;
+    color: var(--texto-primario);
+}
+
+.hourButton.booked {
+    background-color: rgba(96, 165, 250, 0.2);
+    border-color: #60a5fa;
+    color: var(--texto-primario);
+    cursor: not-allowed;
+}
+
+
+.priceInput {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-superficie);
+    color: var(--texto-primario);
+    font-size: 0.9rem;
+    text-align: center;
 }
 
 .buttons {
@@ -33,4 +84,38 @@
     color: #ff8a8a;
     text-align: center;
     margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--texto-secundario);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legendColor {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}
+
+.legendColor.available {
+    background-color: #4ade80;
+}
+
+.legendColor.unavailable {
+    background-color: #f87171;
+}
+
+.legendColor.booked {
+    background-color: #60a5fa;
 }

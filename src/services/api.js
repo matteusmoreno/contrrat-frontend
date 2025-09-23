@@ -75,4 +75,17 @@ export const createAvailability = (availabilityData) => {
     return api.post('/availability', availabilityData);
 };
 
+export const getAllAvailabilityByArtistId = (artistId) => {
+    return api.get(`/availability/get-all-by-artist/${artistId}`);
+};
+
+export const updateAvailability = (availabilityData) => {
+    return api.put('/availability/update', availabilityData);
+};
+
+export const deleteAvailability = (id) => {
+    return api.delete(`/availability/${id}`);
+};
+
+
 export default api;

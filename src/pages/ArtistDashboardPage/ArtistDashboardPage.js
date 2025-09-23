@@ -1,17 +1,33 @@
 // src/pages/ArtistDashboardPage/ArtistDashboardPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './ArtistDashboardPage.module.css';
 import Calendar from '../../components/Calendar/Calendar';
-import AvailabilityModal from '../../components/AvailabilityModal/AvailabilityModal';
+import HourAvailabilityModal from '../../components/AvailabilityModal/AvailabilityModal';
+import { getAllAvailabilityByArtistId } from '../../services/api';
 
 const ArtistDashboardPage = () => {
     const { user } = useAuth();
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
+    const [availabilities, setAvailabilities] = useState([]);
 
-    // TODO: Adicionar lógica para buscar disponibilidades existentes e passá-las para o calendário.
+    const fetchAvailabilities = useCallback(async () => {
+        if (user?.artistId) {
+            try {
+                // O endpoint retorna uma paginação, então pegamos o 'content'
+                const response = await getAllAvailabilityByArtistId(user.artistId);
+                setAvailabilities(response.data.content || []);
+            } catch (error) {
+                console.error("Erro ao buscar disponibilidades:", error);
+            }
+        }
+    }, [user]);
+
+    useEffect(() => {
+        fetchAvailabilities();
+    }, [fetchAvailabilities]);
 
     const handleDateClick = (date) => {
         setSelectedDate(date);
@@ -21,7 +37,16 @@ const ArtistDashboardPage = () => {
     const handleModalClose = () => {
         setIsModalOpen(false);
         setSelectedDate(null);
-        // TODO: Atualizar a lista de disponibilidades após adicionar uma nova.
+        // Atualiza a lista de disponibilidades após fechar o modal
+        fetchAvailabilities();
+    };
+
+    const getAvailabilitiesForDate = (date) => {
+        if (!date) return [];
+        return availabilities.filter(avail => {
+            const availDate = new Date(avail.startTime);
+            return availDate.toDateString() === date.toDateString();
+        });
     };
 
     const months = Array.from({ length: 12 }, (_, i) => i);
@@ -32,11 +57,12 @@ const ArtistDashboardPage = () => {
 
     return (
         <>
-            <AvailabilityModal
+            <HourAvailabilityModal
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
                 date={selectedDate}
                 artistId={user.artistId}
+                existingAvailabilities={getAvailabilitiesForDate(selectedDate)}
             />
             <div className={styles.container}>
                 <header className={styles.header}>
@@ -57,6 +83,7 @@ const ArtistDashboardPage = () => {
                             year={currentYear}
                             month={monthIndex}
                             onDateClick={handleDateClick}
+                            availabilities={availabilities}
                         />
                     ))}
                 </div>

@@ -1,0 +1,11 @@
+/* src/components/PriceInput/PriceInput.module.css */
+.priceInput {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-superficie);
+    color: var(--texto-primario);
+    font-size: 0.9rem;
+    text-align: center;
+}
