@@ -31,22 +31,23 @@ export const createArtist = (artistData) => {
     return api.post('/artists', artistData);
 };
 
+// **NOVA FUNÇÃO**
+export const updateArtist = (artistData) => {
+    return api.put('/artists/update', artistData);
+}
+
 export const createCustomer = (customerData) => {
     return api.post('/customers', customerData);
 };
 
+// **NOVA FUNÇÃO**
+export const updateCustomer = (customerData) => {
+    return api.put('/customers/update', customerData);
+}
+
 export const getProfile = (profileType, id) => {
     const endpoint = profileType === 'ARTIST' ? `/artists/${id}` : `/customers/${id}`;
     return api.get(endpoint);
-};
-
-// NOVO MÉTODO PARA ATUALIZAR O PERFIL
-export const updateArtistProfile = (profileData) => {
-    return api.put('/artists/update', profileData);
-};
-
-export const getArtisticFields = () => {
-    return api.get('/artists/artistic-fields');
 };
 
 export const uploadImage = async (file) => {
@@ -94,6 +95,10 @@ export const updateAvailability = (availabilityData) => {
 
 export const deleteAvailability = (id) => {
     return api.delete(`/availability/${id}`);
+};
+
+export const getArtisticFields = () => {
+    return api.get('/artists/artistic-fields');
 };
 
 

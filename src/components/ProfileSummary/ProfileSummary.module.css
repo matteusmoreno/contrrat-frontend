@@ -11,14 +11,72 @@
     height: fit-content;
 }
 
-.profileImage {
+/* --- Início das novas regras para imagem clicável --- */
+.imageContainer {
+    position: relative;
+    cursor: pointer;
     width: 120px;
     height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
     margin-bottom: 1rem;
-    border: 3px solid var(--cor-primaria);
+    border-radius: 50%;
+    overflow: hidden;
+    /* Garante que a imagem/overlay fique dentro do círculo */
 }
+
+.profileImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid var(--cor-primaria);
+    border-radius: 50%;
+    transition: filter 0.2s;
+}
+
+.imageContainer:hover .profileImage {
+    filter: brightness(0.4);
+}
+
+.imageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    /* Permite que o clique passe para o container */
+}
+
+.imageContainer:hover .imageOverlay {
+    opacity: 1;
+}
+
+.imageOverlay span {
+    font-weight: 500;
+}
+
+.imageLoader {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 5px solid var(--cor-borda);
+    border-top-color: var(--cor-primaria);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Fim das novas regras --- */
 
 .name {
     font-size: 1.5rem;
@@ -40,14 +98,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    /* Espaço entre os itens */
 }
 
 .detailItem {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    /* Espaço entre ícone e texto */
     font-size: 0.9rem;
     color: var(--texto-secundario);
 }
@@ -58,13 +114,11 @@
 
 .activeStatus {
     color: #4ade80;
-    /* Verde */
     font-weight: 500;
 }
 
 .inactiveStatus {
     color: #f87171;
-    /* Vermelho */
     font-weight: 500;
 }
 

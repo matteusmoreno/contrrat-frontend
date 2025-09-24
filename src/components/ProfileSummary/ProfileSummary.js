@@ -6,14 +6,13 @@ import Button from '../Button/Button';
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Perfil";
 
-const ProfileSummary = ({ profileData }) => {
+const ProfileSummary = ({ profileData, onImageClick, isUploading }) => {
     if (!profileData) {
         return <div className={styles.loading}>Carregando perfil...</div>;
     }
 
     const { name, artisticField, email, profilePictureUrl, address, phoneNumber, createdAt, active } = profileData;
 
-    // Formata a data de criação
     const memberSince = new Date(createdAt).toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'long',
@@ -22,11 +21,26 @@ const ProfileSummary = ({ profileData }) => {
 
     return (
         <div className={styles.summaryContainer}>
-            <img
-                src={profilePictureUrl || placeholderImage}
-                alt={name}
-                className={styles.profileImage}
-            />
+            {/* O container da imagem agora é clicável */}
+            <div className={styles.imageContainer} onClick={onImageClick}>
+                {isUploading ? (
+                    <div className={styles.imageLoader}></div>
+                ) : (
+                    <img
+                        src={profilePictureUrl || placeholderImage}
+                        alt={name}
+                        className={styles.profileImage}
+                    />
+                )}
+                {/* Overlay que aparece no hover */}
+                {!isUploading && (
+                    <div className={styles.imageOverlay}>
+                        <span>&#128247;</span>
+                        <span>Alterar</span>
+                    </div>
+                )}
+            </div>
+
             <h2 className={styles.name}>{name}</h2>
             <p className={styles.artisticField}>{artisticField}</p>
 

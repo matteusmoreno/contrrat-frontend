@@ -1,0 +1,31 @@
+/* src/components/TextareaField/TextareaField.module.css */
+.textareaGroup {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.textareaGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--texto-secundario);
+    font-weight: 500;
+}
+
+.textareaGroup textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo);
+    color: var(--texto-primario);
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.textareaGroup textarea:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 2px rgba(199, 56, 74, 0.2);
+}

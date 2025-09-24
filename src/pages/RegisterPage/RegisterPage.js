@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import styles from './RegisterPage.module.css';
+import styles from './RegisterPage.module.css'; // <<-- CORREÇÃO APLICADA AQUI
 import { createArtist, createCustomer, uploadImage, getArtisticFields } from '../../services/api';
 import Button from '../../components/Button/Button';
 import InputField from '../../components/InputField/InputField';
@@ -72,7 +72,7 @@ const RegisterPage = () => {
     const handleMaskedChange = (e) => {
         const { name, value } = e.target;
         const rawValue = value.replace(/\D/g, '');
-        let maskedValue = value; // Manter o que o usuário digita
+        let maskedValue = value;
 
         if (name === 'birthDate') {
             maskedValue = rawValue.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})\/(\d{2})(\d)/, '$1/$2/$3').slice(0, 10);
@@ -81,10 +81,12 @@ const RegisterPage = () => {
                 const month = rawValue.slice(2, 4);
                 const year = rawValue.slice(4, 8);
                 setFormData(prev => ({ ...prev, birthDate: `${year}-${month}-${day}` }));
+            } else {
+                setFormData(prev => ({ ...prev, birthDate: '' }));
             }
         } else if (name === 'phoneNumber') {
-            maskedValue = rawValue.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 15);
-            setFormData(prev => ({ ...prev, phoneNumber: maskedValue.replace(/\D/g, '') }));
+            maskedValue = rawValue.replace(/^(\d{2})(\d{4,5})(\d{4})/, '($1)$2-$3');
+            setFormData(prev => ({ ...prev, phoneNumber: maskedValue }));
         } else if (name === 'cep') {
             maskedValue = rawValue.replace(/(\d{5})(\d)/, '$1-$2').slice(0, 9);
             setFormData(prev => ({ ...prev, cep: maskedValue }));
@@ -148,7 +150,6 @@ const RegisterPage = () => {
                 return;
             }
             setCroppedBlob(blob);
-            // Mostra a imagem cortada no preview
             setImgSrc(URL.createObjectURL(blob));
             setIsCropperOpen(false);
         }, 'image/jpeg');

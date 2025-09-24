@@ -1,5 +1,5 @@
 // src/pages/ArtistDashboardPage/ArtistDashboardPage.js
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './ArtistDashboardPage.module.css';
@@ -7,7 +7,10 @@ import ProfileSummary from '../../components/ProfileSummary/ProfileSummary';
 import TodaySchedule from '../../components/TodaySchedule/TodaySchedule';
 import Button from '../../components/Button/Button';
 import Calendar from '../../components/Calendar/Calendar';
-import { getAllAvailabilityByArtistId, getProfile, createAvailability, updateAvailability, deleteAvailability } from '../../services/api';
+import Modal from '../../components/Modal/Modal'; // Importar Modal
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'; // Importar ReactCrop
+import 'react-image-crop/dist/ReactCrop.css'; // Importar CSS do ReactCrop
+import { getAllAvailabilityByArtistId, getProfile, createAvailability, updateAvailability, deleteAvailability, uploadImage, updateProfilePicture } from '../../services/api';
 
 // Helper para formatar a data para a API
 const formatAsLocalDateTime = (date) => {
@@ -33,6 +36,15 @@ const ArtistDashboardPage = () => {
 
     const [allAvailabilities, setAllAvailabilities] = useState([]);
 
+    // --- Estados para o Modal de Imagem ---
+    const [imgSrc, setImgSrc] = useState('');
+    const [crop, setCrop] = useState();
+    const [completedCrop, setCompletedCrop] = useState(null);
+    const [isCropperOpen, setIsCropperOpen] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef(null);
+    const imgRef = useRef(null);
+    // --- Fim dos Estados para o Modal de Imagem ---
 
     const fetchArtistData = useCallback(async () => {
         if (user?.artistId) {
@@ -159,6 +171,78 @@ const ArtistDashboardPage = () => {
         }
     };
 
+    // --- Funções para o Modal de Imagem ---
+    const handleImageClick = () => {
+        if (uploading) return;
+        fileInputRef.current.click();
+    };
+
+    const onSelectFile = (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setCrop(undefined);
+            const reader = new FileReader();
+            reader.addEventListener('load', () => {
+                setImgSrc(reader.result?.toString() || '');
+                setIsCropperOpen(true);
+            });
+            reader.readAsDataURL(e.target.files[0]);
+        }
+        e.target.value = null;
+    };
+
+    const onImageLoad = (e) => {
+        const { width, height } = e.currentTarget;
+        const initialCrop = centerCrop(
+            makeAspectCrop({ unit: '%', width: 90 }, 1, width, height),
+            width, height
+        );
+        setCrop(initialCrop);
+    };
+
+    const handleCropAndUpload = async () => {
+        if (!completedCrop || !imgRef.current) {
+            setError("Área de corte inválida.");
+            return;
+        }
+
+        setUploading(true);
+        setIsCropperOpen(false);
+        setError(null);
+
+        const canvas = document.createElement('canvas');
+        const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+        const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+        canvas.width = completedCrop.width * scaleX;
+        canvas.height = completedCrop.height * scaleY;
+        const ctx = canvas.getContext('2d');
+
+        ctx.drawImage(
+            imgRef.current,
+            completedCrop.x * scaleX, completedCrop.y * scaleY,
+            completedCrop.width * scaleX, completedCrop.height * scaleY,
+            0, 0, canvas.width, canvas.height
+        );
+
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                setError("Não foi possível processar a imagem.");
+                setUploading(false);
+                return;
+            }
+            try {
+                const imageUrl = await uploadImage(blob);
+                await updateProfilePicture(user.scope, imageUrl);
+                setProfileData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
+            } catch (err) {
+                console.error("Erro no upload:", err);
+                setError("Falha ao enviar a imagem. Tente novamente.");
+            } finally {
+                setUploading(false);
+                setImgSrc('');
+            }
+        }, 'image/jpeg');
+    };
+    // --- Fim das Funções para o Modal de Imagem ---
 
     if (authLoading || pageLoading) {
         return <div className={styles.container}><p>Carregando dashboard...</p></div>;
@@ -182,48 +266,84 @@ const ArtistDashboardPage = () => {
     });
 
     return (
-        <div className={styles.dashboardGrid}>
-            <aside className={styles.sidebar}>
-                <ProfileSummary profileData={profileData} />
-            </aside>
-
-            <main className={styles.mainContent}>
-                <TodaySchedule
-                    availabilities={todayAvailabilities}
-                    onAvailabilitiesChange={handleAvailabilitiesChange}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                    isDirty={isDirty}
-                    isSubmitting={isSubmitting}
-                    error={error}
-                />
-
-                <div className={styles.fullScheduleSection}>
-                    <div className={styles.header}>
-                        <h3 className={styles.sectionTitle}>Gerenciamento Completo</h3>
-                        <p>Visualize sua agenda para os próximos meses.</p>
-                    </div>
-
-                    <div className={styles.calendarPreviewGrid}>
-                        {monthPreviews.map(({ year, month }) => (
-                            <Calendar
-                                key={`${year}-${month}`}
-                                year={year}
-                                month={month}
-                                availabilities={allAvailabilities}
-                                onDateClick={() => navigate('/minha-agenda')}
-                            />
-                        ))}
-                    </div>
-
-                    <div className={styles.fullScheduleButton}>
-                        <Link to="/minha-agenda">
-                            <Button>Ver Calendário Completo</Button>
-                        </Link>
-                    </div>
+        <>
+            {/* Modal de Recorte de Imagem */}
+            <Modal isOpen={isCropperOpen} onClose={() => setIsCropperOpen(false)}>
+                <h3 style={{ marginBottom: '1rem', color: 'var(--texto-primario)' }}>Recorte sua Imagem</h3>
+                {imgSrc && (
+                    <ReactCrop
+                        crop={crop}
+                        onChange={(_, percentCrop) => setCrop(percentCrop)}
+                        onComplete={(c) => setCompletedCrop(c)}
+                        aspect={1}
+                        circularCrop
+                    >
+                        <img ref={imgRef} alt="Recorte" src={imgSrc} onLoad={onImageLoad} style={{ maxHeight: '70vh' }} />
+                    </ReactCrop>
+                )}
+                <div style={{ marginTop: '1rem' }}>
+                    <Button onClick={handleCropAndUpload} disabled={uploading}>
+                        {uploading ? 'Enviando...' : 'Salvar Imagem'}
+                    </Button>
                 </div>
-            </main>
-        </div>
+            </Modal>
+
+            {/* Input de Arquivo Escondido */}
+            <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={onSelectFile}
+                accept="image/png, image/jpeg"
+            />
+
+            <div className={styles.dashboardGrid}>
+                <aside className={styles.sidebar}>
+                    <ProfileSummary
+                        profileData={profileData}
+                        onImageClick={handleImageClick} // Passa a função de clique
+                        isUploading={uploading} // Passa o estado de upload
+                    />
+                </aside>
+
+                <main className={styles.mainContent}>
+                    <TodaySchedule
+                        availabilities={todayAvailabilities}
+                        onAvailabilitiesChange={handleAvailabilitiesChange}
+                        onSave={handleSave}
+                        onCancel={handleCancel}
+                        isDirty={isDirty}
+                        isSubmitting={isSubmitting}
+                        error={error}
+                    />
+
+                    <div className={styles.fullScheduleSection}>
+                        <div className={styles.header}>
+                            <h3 className={styles.sectionTitle}>Gerenciamento Completo</h3>
+                            <p>Visualize sua agenda para os próximos meses.</p>
+                        </div>
+
+                        <div className={styles.calendarPreviewGrid}>
+                            {monthPreviews.map(({ year, month }) => (
+                                <Calendar
+                                    key={`${year}-${month}`}
+                                    year={year}
+                                    month={month}
+                                    availabilities={allAvailabilities}
+                                    onDateClick={() => navigate('/minha-agenda')}
+                                />
+                            ))}
+                        </div>
+
+                        <div className={styles.fullScheduleButton}>
+                            <Link to="/minha-agenda">
+                                <Button>Ver Calendário Completo</Button>
+                            </Link>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </>
     );
 };
 

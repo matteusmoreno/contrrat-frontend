@@ -1,40 +1,44 @@
 /* src/pages/ProfilePage/ProfilePage.module.css */
-.profileContainer {
+.pageContainer {
     max-width: 900px;
     margin: 2rem auto;
-    padding: 2rem;
+    padding: 0 1rem;
+}
+
+.form {
     background-color: var(--cor-superficie);
     border: 1px solid var(--cor-borda);
     border-radius: 12px;
+    padding: 2rem 2.5rem;
 }
 
-.profileHeader {
+.header {
     display: flex;
     align-items: center;
     gap: 2rem;
-    margin-bottom: 1rem;
-    /* Reduzido */
-    padding-bottom: 1rem;
-    /* Reduzido */
+    padding-bottom: 2rem;
+    margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--cor-borda);
 }
 
 .imageContainer {
     position: relative;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .profileImage {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
     background-color: var(--cor-fundo);
+    border: 3px solid var(--cor-primaria);
     transition: filter 0.2s;
 }
 
 .imageContainer:hover .profileImage {
-    filter: brightness(0.5);
+    filter: brightness(0.4);
 }
 
 .imageOverlay {
@@ -44,7 +48,6 @@
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     color: white;
@@ -52,143 +55,16 @@
     transition: opacity 0.2s;
     pointer-events: none;
     border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .imageContainer:hover .imageOverlay {
     opacity: 1;
 }
 
-.imageOverlay span {
-    font-weight: 500;
-}
-
-.hiddenInput {
-    display: none;
-}
-
-.headerInfo h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.headerInfo p {
-    font-size: 1.1rem;
-    color: var(--cor-primaria);
-    font-weight: 500;
-}
-
-/* NOVOS ESTILOS PARA EDIÇÃO */
-.editToggle {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1.5rem;
-}
-
-.editingLabel {
-    color: var(--cor-primaria);
-    font-weight: 500;
-}
-
-.inputField,
-.textareaField {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid var(--cor-borda);
-    background-color: var(--cor-fundo);
-    color: var(--texto-primario);
-    font-size: 1rem;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.inputField:focus,
-.textareaField:focus {
-    outline: none;
-    border-color: var(--cor-primaria);
-    box-shadow: 0 0 0 2px rgba(199, 56, 74, 0.2);
-}
-
-.textareaField {
-    resize: vertical;
-}
-
-.actionsContainer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--cor-borda);
-}
-
-/* FIM DOS NOVOS ESTILOS */
-
-.profileDetails h2 {
-    font-size: 1.5rem;
-    color: var(--cor-primaria);
-    margin-bottom: 1.5rem;
-}
-
-.artistDescription {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--cor-borda);
-}
-
-.artistDescription h2 {
-    font-size: 1.5rem;
-    color: var(--cor-primaria);
-    margin-bottom: 1rem;
-}
-
-.artistDescription p {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: var(--texto-secundario);
-    white-space: pre-wrap;
-    /* Mantém as quebras de linha da descrição */
-}
-
-.detailsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.detailItem {
-    background-color: var(--cor-fundo);
-    padding: 1rem;
-    border-radius: 8px;
-}
-
-.detailItem label {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--texto-secundario);
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-}
-
-.detailItem p {
-    font-size: 1rem;
-    color: var(--texto-primario);
-}
-
-.loading,
-.error {
-    text-align: center;
-    padding: 5rem;
-    font-size: 1.2rem;
-    color: var(--texto-secundario);
-}
-
-.error {
-    color: #ff8a8a;
-}
-
 .imageLoader {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     border: 5px solid var(--cor-borda);
     border-top-color: var(--cor-primaria);
@@ -201,9 +77,90 @@
     }
 }
 
+.headerInfo h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.headerInfo p {
+    font-size: 1rem;
+    color: var(--texto-secundario);
+}
+
+.formSection {
+    margin-bottom: 2.5rem;
+}
+
+.formSection h2 {
+    font-size: 1.25rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+    /* Ocupa a largura total da grade */
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.message,
+.messageError {
+    text-align: center;
+    padding: 5rem;
+    font-size: 1.2rem;
+    color: var(--texto-secundario);
+}
+
+.messageError,
+.formError {
+    color: #ff8a8a;
+}
+
+.formError,
+.formSuccess {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.formSuccess {
+    color: #8aff8a;
+    background-color: rgba(138, 255, 138, 0.1);
+}
+
+.modalActions {
+    margin-top: 1rem;
+    text-align: right;
+}
+
 @media (max-width: 768px) {
-    .profileHeader {
+    .header {
         flex-direction: column;
         text-align: center;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form {
+        padding: 1.5rem;
     }
 }
