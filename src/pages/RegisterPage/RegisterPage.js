@@ -8,7 +8,7 @@ import { createArtist, createCustomer, uploadImage, getArtisticFields } from '..
 import Button from '../../components/Button/Button';
 import InputField from '../../components/InputField/InputField';
 import Modal from '../../components/Modal/Modal';
-import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput'; // Supondo que você criou este componente
+import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput';
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Foto+de+Perfil";
 
@@ -25,14 +25,14 @@ const RegisterPage = () => {
         complement: '',
         description: '',
         profilePictureUrl: '',
-        artisticField: '', // Adicionado
+        artisticField: '',
     });
     const [displayValues, setDisplayValues] = useState({
         birthDate: '',
         phoneNumber: '',
         cep: '',
     });
-    const [artisticFieldOptions, setArtisticFieldOptions] = useState([]); // Adicionado
+    const [artisticFieldOptions, setArtisticFieldOptions] = useState([]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,7 +42,8 @@ const RegisterPage = () => {
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState(null);
     const [isCropperOpen, setIsCropperOpen] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [croppedBlob, setCroppedBlob] = useState(null);
+
 
     const fileInputRef = useRef(null);
     const imgRef = useRef(null);
@@ -71,31 +72,27 @@ const RegisterPage = () => {
     const handleMaskedChange = (e) => {
         const { name, value } = e.target;
         const rawValue = value.replace(/\D/g, '');
-        let maskedValue = rawValue;
-        let finalValue = value;
+        let maskedValue = value; // Manter o que o usuário digita
 
         if (name === 'birthDate') {
-            if (rawValue.length > 2) maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2)}`;
-            if (rawValue.length > 4) maskedValue = `${rawValue.slice(0, 2)}/${rawValue.slice(2, 4)}/${rawValue.slice(4, 8)}`;
+            maskedValue = rawValue.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})\/(\d{2})(\d)/, '$1/$2/$3').slice(0, 10);
             if (rawValue.length === 8) {
                 const day = rawValue.slice(0, 2);
                 const month = rawValue.slice(2, 4);
                 const year = rawValue.slice(4, 8);
-                finalValue = `${year}-${month}-${day}`;
-            } else {
-                finalValue = '';
+                setFormData(prev => ({ ...prev, birthDate: `${year}-${month}-${day}` }));
             }
         } else if (name === 'phoneNumber') {
-            maskedValue = rawValue.replace(/^(\d{2})(\d)/g, '($1)$2').replace(/(\d{5})(\d)/, '$1-$2');
-            finalValue = maskedValue;
+            maskedValue = rawValue.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 15);
+            setFormData(prev => ({ ...prev, phoneNumber: maskedValue.replace(/\D/g, '') }));
         } else if (name === 'cep') {
-            maskedValue = rawValue.replace(/(\d{5})(\d)/, '$1-$2');
-            finalValue = maskedValue;
+            maskedValue = rawValue.replace(/(\d{5})(\d)/, '$1-$2').slice(0, 9);
+            setFormData(prev => ({ ...prev, cep: maskedValue }));
         }
 
-        setFormData(prev => ({ ...prev, [name]: finalValue }));
         setDisplayValues(prev => ({ ...prev, [name]: maskedValue }));
     };
+
 
     const handleImageClick = () => {
         fileInputRef.current.click();
@@ -104,7 +101,6 @@ const RegisterPage = () => {
     const onSelectFile = (e) => {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
-            setSelectedFile(file);
             setCrop(undefined);
             const reader = new FileReader();
             reader.addEventListener('load', () => {
@@ -124,17 +120,13 @@ const RegisterPage = () => {
             height
         );
         setCrop(initialCrop);
-        imgRef.current = e.currentTarget;
     };
 
-    const handleCropAndSetUrl = async () => {
+    const handleCropConfirm = () => {
         if (!completedCrop || !imgRef.current) {
             setError("Área de corte inválida.");
             return;
         }
-        setIsSubmitting(true);
-        setIsCropperOpen(false);
-        setError('');
 
         const canvas = document.createElement('canvas');
         const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
@@ -150,38 +142,16 @@ const RegisterPage = () => {
             0, 0, canvas.width, canvas.height
         );
 
-        canvas.toBlob(async (blob) => {
+        canvas.toBlob((blob) => {
             if (!blob) {
                 setError("Não foi possível processar a imagem.");
-                setIsSubmitting(false);
                 return;
             }
-            try {
-                const imageUrl = await uploadImage(blob);
-                // Atualiza o estado aqui, mas chama o submit com os dados mais recentes
-                await submitRegistration({ ...formData, profilePictureUrl: imageUrl });
-            } catch (err) {
-                setError("Falha no upload da imagem. Tente novamente.");
-                setIsSubmitting(false);
-            }
+            setCroppedBlob(blob);
+            // Mostra a imagem cortada no preview
+            setImgSrc(URL.createObjectURL(blob));
+            setIsCropperOpen(false);
         }, 'image/jpeg');
-    };
-
-    const submitRegistration = async (finalFormData) => {
-        try {
-            if (profileType === 'ARTIST') {
-                await createArtist(finalFormData);
-            } else {
-                await createCustomer(finalFormData);
-            }
-            setSuccess('Cadastro realizado com sucesso! Você será redirecionado para o login.');
-            setTimeout(() => navigate('/login'), 2000);
-        } catch (err) {
-            const errorMessage = err.response?.data || 'Erro ao realizar o cadastro. Verifique seus dados.';
-            setError(errorMessage);
-        } finally {
-            setIsSubmitting(false);
-        }
     };
 
     const handleSubmit = async (e) => {
@@ -190,10 +160,27 @@ const RegisterPage = () => {
         setSuccess('');
         setIsSubmitting(true);
 
-        if (selectedFile && !formData.profilePictureUrl) {
-            handleCropAndSetUrl();
-        } else {
-            await submitRegistration(formData);
+        let finalFormData = { ...formData };
+
+        try {
+            if (croppedBlob) {
+                const imageUrl = await uploadImage(croppedBlob);
+                finalFormData.profilePictureUrl = imageUrl;
+            }
+
+            if (profileType === 'ARTIST') {
+                await createArtist(finalFormData);
+            } else {
+                await createCustomer(finalFormData);
+            }
+
+            setSuccess('Cadastro realizado com sucesso! Você será redirecionado para o login.');
+            setTimeout(() => navigate('/login'), 2000);
+        } catch (err) {
+            const errorMessage = err.response?.data || 'Erro ao realizar o cadastro. Verifique seus dados.';
+            setError(errorMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -207,9 +194,7 @@ const RegisterPage = () => {
                     </ReactCrop>
                 )}
                 <div style={{ marginTop: '1rem' }}>
-                    <Button onClick={handleCropAndSetUrl} disabled={isSubmitting}>
-                        Confirmar e Continuar
-                    </Button>
+                    <Button onClick={handleCropConfirm}>Confirmar Corte</Button>
                 </div>
             </Modal>
 
@@ -245,7 +230,7 @@ const RegisterPage = () => {
                     <InputField id="email" name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required />
                     <InputField id="password" name="password" label="Senha" type="password" value={formData.password} onChange={handleChange} required />
                     <InputField id="birthDate" name="birthDate" label="Data de Nascimento" type="text" value={displayValues.birthDate} onChange={handleMaskedChange} required maxLength="10" placeholder="dd/mm/aaaa" />
-                    <InputField id="phoneNumber" name="phoneNumber" label="Telefone" value={displayValues.phoneNumber} onChange={handleMaskedChange} required maxLength="14" placeholder="(xx)xxxxx-xxxx" />
+                    <InputField id="phoneNumber" name="phoneNumber" label="Telefone" value={displayValues.phoneNumber} onChange={handleMaskedChange} required maxLength="15" placeholder="(xx) xxxxx-xxxx" />
 
                     {profileType === 'ARTIST' && (
                         <>

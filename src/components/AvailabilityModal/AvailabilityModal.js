@@ -6,7 +6,6 @@ import PriceInput from '../PriceInput/PriceInput';
 import styles from './AvailabilityModal.module.css';
 import { createAvailability, updateAvailability, deleteAvailability } from '../../services/api';
 
-// Helper function to format a Date object into a local ISO-like string (YYYY-MM-DDTHH:mm:ss)
 const formatAsLocalDateTime = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -22,14 +21,13 @@ const formatAsLocalDateTime = (date) => {
 const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvailabilities }) => {
     const [initialAvailabilities, setInitialAvailabilities] = useState({});
     const [currentAvailabilities, setCurrentAvailabilities] = useState({});
-    const [editingPriceForHour, setEditingPriceForHour] = useState(null);
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const initializeStates = useCallback(() => {
         const initial = {};
         for (let i = 0; i < 24; i++) {
-            initial[i] = { status: 'FREE', price: undefined, id: null };
+            initial[i] = { status: 'FREE', price: '', id: null };
         }
 
         existingAvailabilities.forEach(avail => {
@@ -37,12 +35,11 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
             initial[startHour] = {
                 id: avail.id,
                 status: avail.availabilityStatus,
-                price: avail.price,
+                price: avail.price || '',
             };
         });
         setInitialAvailabilities(JSON.parse(JSON.stringify(initial)));
         setCurrentAvailabilities(JSON.parse(JSON.stringify(initial)));
-        setEditingPriceForHour(null);
     }, [existingAvailabilities]);
 
     useEffect(() => {
@@ -55,45 +52,23 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
         const availability = currentAvailabilities[hour];
         if (availability.status === 'BOOKED') return;
 
-        // Se já está "Disponível", um clique apenas ativa/desativa a edição do preço.
+        let newStatus = 'AVAILABLE';
         if (availability.status === 'AVAILABLE') {
-            setEditingPriceForHour(editingPriceForHour === hour ? null : hour);
-            return;
+            newStatus = 'UNAVAILABLE';
+        } else if (availability.status === 'UNAVAILABLE') {
+            newStatus = 'FREE';
         }
 
-        // Ciclo de status: Indisponível -> Livre
-        if (availability.status === 'UNAVAILABLE') {
-            setEditingPriceForHour(null);
-            setCurrentAvailabilities(prev => ({
-                ...prev,
-                [hour]: { ...prev[hour], status: 'FREE', price: undefined }
-            }));
-            return;
-        }
-
-        // Ciclo de status: Livre -> Disponível
-        if (availability.status === 'FREE') {
-            setEditingPriceForHour(hour);
-            setCurrentAvailabilities(prev => ({
-                ...prev,
-                [hour]: { ...prev[hour], status: 'AVAILABLE' }
-            }));
-        }
-    };
-
-    // Duplo clique em "Disponível" o torna "Indisponível"
-    const handleDoubleClick = (hour) => {
-        const availability = currentAvailabilities[hour];
-        if (availability.status === 'AVAILABLE') {
-            if (editingPriceForHour === hour) {
-                setEditingPriceForHour(null);
+        setCurrentAvailabilities(prev => ({
+            ...prev,
+            [hour]: {
+                ...prev[hour],
+                status: newStatus,
+                price: newStatus !== 'AVAILABLE' ? '' : prev[hour].price,
             }
-            setCurrentAvailabilities(prev => ({
-                ...prev,
-                [hour]: { ...prev[hour], status: 'UNAVAILABLE', price: undefined }
-            }));
-        }
+        }));
     };
+
 
     const handlePriceChange = (hour, price) => {
         setCurrentAvailabilities(prev => ({
@@ -120,16 +95,18 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
             const endTime = new Date(date);
             endTime.setHours(hour + 1, 0, 0, 0);
 
+            if (current.status === 'AVAILABLE' && (!current.price || parseFloat(current.price) <= 0)) {
+                setError(`Por favor, defina um preço válido para ${String(hour).padStart(2, '0')}:00.`);
+                setIsSubmitting(false);
+                return;
+            }
+
+            // Deletar
             if (initial.status !== 'FREE' && current.status === 'FREE') {
                 promises.push(deleteAvailability(initial.id));
             }
+            // Criar
             else if (initial.status === 'FREE' && current.status !== 'FREE') {
-                if (current.status === 'AVAILABLE' && (!current.price || current.price <= 0)) {
-                    setError(`Por favor, defina um preço válido para ${String(hour).padStart(2, '0')}:00.`);
-                    setIsSubmitting(false);
-                    return;
-                }
-
                 promises.push(createAvailability({
                     artistId,
                     startTime: formatAsLocalDateTime(startTime),
@@ -138,13 +115,8 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                     availabilityStatus: current.status
                 }));
             }
+            // Atualizar
             else if (initial.status !== 'FREE' && current.status !== 'FREE') {
-                if (current.status === 'AVAILABLE' && (!current.price || current.price <= 0)) {
-                    setError(`Por favor, defina um preço válido para ${String(hour).padStart(2, '0')}:00.`);
-                    setIsSubmitting(false);
-                    return;
-                }
-
                 promises.push(updateAvailability({
                     id: initial.id,
                     startTime: formatAsLocalDateTime(startTime),
@@ -160,7 +132,8 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
             onClose();
         } catch (err) {
             console.error("Erro ao salvar disponibilidades:", err);
-            setError(err.response?.data?.message || 'Não foi possível salvar as alterações.');
+            const errorMessage = err.response?.data?.message || err.response?.data || 'Não foi possível salvar as alterações.';
+            setError(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -182,27 +155,27 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                         const availability = currentAvailabilities[hour];
                         const now = new Date();
                         const slotDateTime = new Date(date);
-                        slotDateTime.setHours(hour, 59, 59, 999);
+                        slotDateTime.setHours(hour, 0, 0, 0);
+
+                        // Verifica se o slot de horário (a hora cheia) já passou
                         const isPastHour = now > slotDateTime;
-                        const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(availability.price || 0);
 
                         return (
                             <div key={hour} className={styles.hourSlot}>
                                 <button
                                     onClick={() => handleHourClick(hour)}
-                                    onDoubleClick={() => handleDoubleClick(hour)}
-                                    title={availability.status === 'AVAILABLE' ? 'Clique para editar o preço, ou clique duplo para tornar indisponível' : 'Clique para alterar o status'}
+                                    title={'Clique para alterar o status'}
                                     className={`${styles.hourButton} ${styles[(availability.status || 'FREE').toLowerCase()]} ${isPastHour ? styles.past : ''}`}
                                     disabled={availability.status === 'BOOKED' || isPastHour}
                                 >
                                     <span className={styles.hourText}>{`${String(hour).padStart(2, '0')}:00`}</span>
-                                    {availability.status === 'AVAILABLE' && availability.price > 0 && (
-                                        <span className={styles.priceText}>{formattedPrice}</span>
+                                    {availability.status === 'AVAILABLE' && (
+                                        <span className={styles.priceText}>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(availability.price || 0)}</span>
                                     )}
                                 </button>
 
                                 <div className={styles.slotActionArea}>
-                                    {editingPriceForHour === hour && (
+                                    {availability.status === 'AVAILABLE' && (
                                         <PriceInput
                                             value={availability.price}
                                             onChange={(price) => handlePriceChange(hour, price)}

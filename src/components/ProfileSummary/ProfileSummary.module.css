@@ -9,7 +9,6 @@
     align-items: center;
     text-align: center;
     height: fit-content;
-    /* Para se ajustar ao conteúdo */
 }
 
 .profileImage {
@@ -31,13 +30,42 @@
     font-size: 1rem;
     color: var(--cor-primaria);
     font-weight: 500;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.email {
+.details {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    /* Espaço entre os itens */
+}
+
+.detailItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    /* Espaço entre ícone e texto */
     font-size: 0.9rem;
     color: var(--texto-secundario);
-    margin-bottom: 1.5rem;
+}
+
+.detailIcon {
+    font-size: 1.1rem;
+}
+
+.activeStatus {
+    color: #4ade80;
+    /* Verde */
+    font-weight: 500;
+}
+
+.inactiveStatus {
+    color: #f87171;
+    /* Vermelho */
+    font-weight: 500;
 }
 
 .editButtonLink {
