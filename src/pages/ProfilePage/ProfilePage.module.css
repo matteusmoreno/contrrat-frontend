@@ -12,8 +12,10 @@
     display: flex;
     align-items: center;
     gap: 2rem;
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
+    margin-bottom: 1rem;
+    /* Reduzido */
+    padding-bottom: 1rem;
+    /* Reduzido */
     border-bottom: 1px solid var(--cor-borda);
 }
 
@@ -71,8 +73,55 @@
 
 .headerInfo p {
     font-size: 1.1rem;
-    color: var(--texto-secundario);
+    color: var(--cor-primaria);
+    font-weight: 500;
 }
+
+/* NOVOS ESTILOS PARA EDIÇÃO */
+.editToggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.editingLabel {
+    color: var(--cor-primaria);
+    font-weight: 500;
+}
+
+.inputField,
+.textareaField {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo);
+    color: var(--texto-primario);
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.inputField:focus,
+.textareaField:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 2px rgba(199, 56, 74, 0.2);
+}
+
+.textareaField {
+    resize: vertical;
+}
+
+.actionsContainer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+/* FIM DOS NOVOS ESTILOS */
 
 .profileDetails h2 {
     font-size: 1.5rem;
@@ -96,6 +145,8 @@
     font-size: 1rem;
     line-height: 1.7;
     color: var(--texto-secundario);
+    white-space: pre-wrap;
+    /* Mantém as quebras de linha da descrição */
 }
 
 .detailsGrid {
@@ -115,6 +166,7 @@
     font-size: 0.8rem;
     color: var(--texto-secundario);
     margin-bottom: 0.25rem;
+    text-transform: uppercase;
 }
 
 .detailItem p {

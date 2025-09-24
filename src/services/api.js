@@ -40,6 +40,15 @@ export const getProfile = (profileType, id) => {
     return api.get(endpoint);
 };
 
+// NOVO MÉTODO PARA ATUALIZAR O PERFIL
+export const updateArtistProfile = (profileData) => {
+    return api.put('/artists/update', profileData);
+};
+
+export const getArtisticFields = () => {
+    return api.get('/artists/artistic-fields');
+};
+
 export const uploadImage = async (file) => {
     const signatureResponse = await api.get('/signature');
     const { signature, timestamp, api_key, cloud_name } = signatureResponse.data;
@@ -85,11 +94,6 @@ export const updateAvailability = (availabilityData) => {
 
 export const deleteAvailability = (id) => {
     return api.delete(`/availability/${id}`);
-};
-
-// NOVO MÉTODO ADICIONADO
-export const getArtisticFields = () => {
-    return api.get('/artists/artistic-fields');
 };
 
 

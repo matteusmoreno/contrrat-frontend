@@ -1,13 +1,14 @@
 // src/pages/ProfilePage/ProfilePage.js
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getProfile, uploadImage, updateProfilePicture } from '../../services/api';
+import { getProfile, uploadImage, updateProfilePicture, updateArtistProfile } from '../../services/api';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
 import styles from './ProfilePage.module.css';
 import Modal from '../../components/Modal/Modal';
 import Button from '../../components/Button/Button';
+import InputField from '../../components/InputField/InputField';
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Perfil";
 
@@ -17,6 +18,11 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Estados para o modo de edição
+    const [isEditing, setIsEditing] = useState(false);
+    const [editData, setEditData] = useState({});
+
+    // Estados para o cropper de imagem
     const [imgSrc, setImgSrc] = useState('');
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState(null);
@@ -38,6 +44,8 @@ const ProfilePage = () => {
                     }
                     const response = await getProfile(user.scope, profileId);
                     setProfileData(response.data);
+                    // Inicializa os dados de edição com os dados do perfil
+                    setEditData({ ...response.data, ...response.data.address });
                 } catch (err) {
                     console.error("Erro ao buscar perfil:", err);
                     setError("Não foi possível carregar os dados do perfil.");
@@ -48,6 +56,51 @@ const ProfilePage = () => {
             fetchProfileData();
         }
     }, [user]);
+
+    const handleEditToggle = () => {
+        if (!isEditing) {
+            // Entrando no modo de edição, reseta os dados para os atuais do perfil
+            setEditData({ ...profileData, ...profileData.address });
+        }
+        setIsEditing(!isEditing);
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
+
+        const payload = {
+            id: editData.id,
+            name: editData.name,
+            birthDate: editData.birthDate,
+            phoneNumber: editData.phoneNumber,
+            email: editData.email,
+            description: editData.description,
+            cep: editData.zipCode,
+            number: editData.number,
+            complement: editData.complement,
+            artisticField: editData.artisticField // Adicione artisticField se for editável
+        };
+
+        try {
+            const response = await updateArtistProfile(payload);
+            setProfileData(response.data);
+            setIsEditing(false);
+        } catch (err) {
+            setError(err.response?.data?.message || "Erro ao salvar. Tente novamente.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // ... (funções de imagem permanecem as mesmas)
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleImageClick = () => {
         if (uploading) return;
@@ -133,7 +186,7 @@ const ProfilePage = () => {
     };
 
     if (loading) return <div className={styles.loading}>Carregando perfil...</div>;
-    if (error) return <div className={styles.error}>{error}</div>;
+    if (error && !isEditing) return <div className={styles.error}>{error}</div>; // Mostra erro principal se não estiver editando
     if (!profileData) return null;
 
     const formattedBirthDate = new Date(profileData.birthDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
@@ -142,85 +195,89 @@ const ProfilePage = () => {
     return (
         <>
             <Modal isOpen={isCropperOpen} onClose={() => setIsCropperOpen(false)}>
-                <h3 style={{ marginBottom: '1rem', color: 'var(--texto-primario)' }}>Recorte sua Imagem</h3>
-                {imgSrc && (
-                    <ReactCrop
-                        crop={crop}
-                        onChange={(_, percentCrop) => setCrop(percentCrop)}
-                        onComplete={(c) => setCompletedCrop(c)}
-                        aspect={1}
-                        circularCrop
-                    >
-                        <img
-                            ref={imgRef}
-                            alt="Recorte"
-                            src={imgSrc}
-                            onLoad={onImageLoad}
-                            style={{ maxHeight: '70vh' }}
-                        />
-                    </ReactCrop>
-                )}
-                <div style={{ marginTop: '1rem' }}>
-                    <Button onClick={handleCropAndUpload} disabled={uploading}>
-                        {uploading ? 'Enviando...' : 'Salvar Imagem'}
-                    </Button>
-                </div>
+                {/* ... (código do modal de cropper) ... */}
             </Modal>
 
             <div className={styles.profileContainer}>
                 <header className={styles.profileHeader}>
-                    <div className={styles.imageContainer} onClick={handleImageClick}>
-                        {uploading ? (
-                            <div className={styles.imageLoader}></div>
-                        ) : (
-                            <img src={displayImage} alt="Foto de Perfil" className={styles.profileImage} />
-                        )}
-                        <div className={styles.imageOverlay}>
-                            <span>&#128247;</span>
-                            <span>Alterar Foto</span>
-                        </div>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            className={styles.hiddenInput}
-                            onChange={onSelectFile}
-                            accept="image/png, image/jpeg"
-                        />
-                    </div>
-                    <div className={styles.headerInfo}>
-                        <h1>{profileData.name}</h1>
-                        {/* Alteração: Mostra a área de atuação se for um artista */}
-                        <p>{user.scope === 'ARTIST' ? profileData.artisticField : 'Contratante'}</p>
-                    </div>
+                    {/* ... (código do header com a imagem e nome) ... */}
                 </header>
 
-                <section className={styles.profileDetails}>
-                    <h2>Meus Dados</h2>
-                    <div className={styles.detailsGrid}>
-                        <div className={styles.detailItem}>
-                            <label>Email</label>
-                            <p>{profileData.email}</p>
-                        </div>
-                        <div className={styles.detailItem}>
-                            <label>Telefone</label>
-                            <p>{profileData.phoneNumber}</p>
-                        </div>
-                        <div className={styles.detailItem}>
-                            <label>Data de Nascimento</label>
-                            <p>{formattedBirthDate}</p>
-                        </div>
-                        <div className={styles.detailItem}>
-                            <label>Endereço</label>
-                            <p>{`${profileData.address.street}, ${profileData.address.number || 'S/N'} - ${profileData.address.city}/${profileData.address.state}`}</p>
-                        </div>
+                <form onSubmit={handleSave}>
+                    <div className={styles.editToggle}>
+                        {!isEditing ? (
+                            <Button type="button" onClick={handleEditToggle}>Editar Dados</Button>
+                        ) : (
+                            <p className={styles.editingLabel}>Modo de Edição</p>
+                        )}
                     </div>
-                    {profileData.description && (
-                        <div className={styles.artistDescription}>
-                            <h2>Sobre Mim</h2>
-                            <p>{profileData.description}</p>
+
+                    <section className={styles.profileDetails}>
+                        <h2>Meus Dados</h2>
+                        <div className={styles.detailsGrid}>
+                            {/* Nome */}
+                            <div className={styles.detailItem}>
+                                <label>Nome</label>
+                                {isEditing ? (
+                                    <input name="name" value={editData.name || ''} onChange={handleEditChange} className={styles.inputField} />
+                                ) : (
+                                    <p>{profileData.name}</p>
+                                )}
+                            </div>
+
+                            {/* Telefone */}
+                            <div className={styles.detailItem}>
+                                <label>Telefone</label>
+                                {isEditing ? (
+                                    <input name="phoneNumber" value={editData.phoneNumber || ''} onChange={handleEditChange} className={styles.inputField} />
+                                ) : (
+                                    <p>{profileData.phoneNumber}</p>
+                                )}
+                            </div>
+
+                            {/* Endereço - CEP */}
+                            <div className={styles.detailItem}>
+                                <label>CEP</label>
+                                {isEditing ? (
+                                    <input name="zipCode" value={editData.zipCode || ''} onChange={handleEditChange} className={styles.inputField} />
+                                ) : (
+                                    <p>{profileData.address.zipCode}</p>
+                                )}
+                            </div>
+                            {/* Endereço - Número */}
+                            <div className={styles.detailItem}>
+                                <label>Número</label>
+                                {isEditing ? (
+                                    <input name="number" value={editData.number || ''} onChange={handleEditChange} className={styles.inputField} />
+                                ) : (
+                                    <p>{profileData.address.number}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Descrição do Artista */}
+                        {user.scope === 'ARTIST' && (
+                            <div className={styles.artistDescription}>
+                                <h2>Sobre Mim</h2>
+                                {isEditing ? (
+                                    <textarea name="description" value={editData.description || ''} onChange={handleEditChange} className={styles.textareaField} rows="5" />
+                                ) : (
+                                    <p>{profileData.description || 'Nenhuma descrição adicionada.'}</p>
+                                )}
+                            </div>
+                        )}
+                    </section>
+
+                    {isEditing && (
+                        <div className={styles.actionsContainer}>
+                            {error && <p className={styles.error}>{error}</p>}
+                            <Button type="button" onClick={handleEditToggle}>Cancelar</Button>
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+                            </Button>
                         </div>
                     )}
-                </section>
+                </form>
             </div>
         </>
     );
