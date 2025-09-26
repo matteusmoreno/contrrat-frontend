@@ -1,8 +1,14 @@
 /* src/App.css */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .main-container {
+  flex: 1; /* Faz o conteúdo principal crescer e empurrar o footer para baixo */
   max-width: 1200px;
+  width: 100%;
   margin: 2rem auto;
-  /* 2rem de espaço no topo/baixo, centralizado nas laterais */
   padding: 0 1rem;
-  /* Espaçamento interno para telas menores */
 }

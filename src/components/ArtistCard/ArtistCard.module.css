@@ -8,6 +8,7 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 .card:hover {
@@ -15,12 +16,38 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
+.card.featured {
+    border-color: #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.imageContainer {
+    /* Novo container para a imagem e o selo */
+    position: relative;
+}
+
 .cardImage {
     width: 100%;
     height: 200px;
     object-fit: cover;
-    /* Garante que a imagem cubra o espaço sem distorcer */
     background-color: var(--cor-borda);
+}
+
+/* --- NOVO ESTILO PARA O SELO PREMIUM --- */
+.premiumBadge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: #FFD700;
+    color: #121212;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .cardContent {
@@ -34,15 +61,14 @@
     font-size: 1.25rem;
     color: var(--texto-primario);
     margin-bottom: 0.25rem;
-    /* Reduzido para aproximar do campo de atuação */
 }
 
-/* NOVO ESTILO ADICIONADO */
 .artisticField {
     color: var(--cor-primaria);
     font-size: 0.9rem;
     font-weight: 500;
     margin-bottom: 1rem;
+    min-height: 20px;
 }
 
 .description {
@@ -50,12 +76,18 @@
     font-size: 0.9rem;
     line-height: 1.5;
     flex-grow: 1;
-    /* Faz a descrição ocupar o espaço disponível */
     margin-bottom: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    min-height: 44px;
 }
 
 .location {
     font-size: 0.8rem;
     color: var(--cor-primaria);
     font-weight: 500;
+    margin-top: auto;
 }

@@ -1,11 +1,12 @@
 import React from 'react';
 import styles from './Button.module.css';
 
-// { children, onClick, type = 'button' } são "props" (propriedades)
-// que o componente recebe. `children` é o texto dentro do botão.
-const Button = ({ children, onClick, type = 'button' }) => {
+const Button = ({ children, onClick, type = 'button', variant = 'primary' }) => {
+    // Mapeia a variante para uma classe CSS
+    const buttonClass = styles[variant] || styles.primary;
+
     return (
-        <button className={styles.button} type={type} onClick={onClick}>
+        <button className={`${styles.button} ${buttonClass}`} type={type} onClick={onClick}>
             {children}
         </button>
     );

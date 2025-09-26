@@ -1,23 +1,31 @@
 // src/components/ArtistCard/ArtistCard.js
 import React from 'react';
 import styles from './ArtistCard.module.css';
+import { FaCheckCircle } from 'react-icons/fa'; // Ícone para o selo premium
 
-// Usaremos uma imagem de placeholder por enquanto
 const placeholderImage = "https://via.placeholder.com/400x300.png/1E1E1E/EAEAEA?text=Artista";
 
-const ArtistCard = ({ artist }) => {
-    // Limita a descrição para não quebrar o layout
+const ArtistCard = ({ artist, isFeatured = false }) => {
     const truncateDescription = (text, length) => {
         if (!text) return "";
         return text.length > length ? text.substring(0, length) + "..." : text;
     };
 
+    const cardClasses = `${styles.card} ${isFeatured ? styles.featured : ''}`;
+
     return (
-        <div className={styles.card}>
-            <img src={artist.profilePictureUrl || placeholderImage} alt={artist.name} className={styles.cardImage} />
+        <div className={cardClasses}>
+            <div className={styles.imageContainer}>
+                <img src={artist.profilePictureUrl || placeholderImage} alt={artist.name} className={styles.cardImage} />
+                {/* **NOVO:** Selo Premium */}
+                {artist.premium && (
+                    <div className={styles.premiumBadge}>
+                        <FaCheckCircle /> Premium
+                    </div>
+                )}
+            </div>
             <div className={styles.cardContent}>
                 <h3>{artist.name}</h3>
-                {/* LINHA ADICIONADA: Mostra a área de atuação */}
                 {artist.artisticField && <p className={styles.artisticField}>{artist.artisticField}</p>}
                 <p className={styles.description}>
                     {truncateDescription(artist.description, 100)}

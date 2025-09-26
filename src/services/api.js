@@ -19,8 +19,22 @@ export const login = (username, password) => {
     return api.post('/login', { username, password });
 };
 
+// **FUNÇÕES NOVAS E ATUALIZADAS**
 export const getArtists = () => {
     return api.get('/artists/all');
+};
+
+export const getPremiumArtists = () => {
+    return api.get('/artists/premium-artists'); // Nova função
+};
+
+export const getArtistsByField = (artisticField) => {
+    return api.get(`/artists/artists-by-field/${artisticField}`); // Nova função
+};
+// **FIM DAS NOVAS FUNÇÕES**
+
+export const getAllActiveArtists = () => {
+    return api.get('/artists/all-active?size=200'); 
 };
 
 export const getArtistById = (id) => {
@@ -31,7 +45,6 @@ export const createArtist = (artistData) => {
     return api.post('/artists', artistData);
 };
 
-// **NOVA FUNÇÃO**
 export const updateArtist = (artistData) => {
     return api.put('/artists/update', artistData);
 }
@@ -40,7 +53,6 @@ export const createCustomer = (customerData) => {
     return api.post('/customers', customerData);
 };
 
-// **NOVA FUNÇÃO**
 export const updateCustomer = (customerData) => {
     return api.put('/customers/update', customerData);
 }

@@ -1,15 +1,30 @@
 /* src/pages/HomePage/HomePage.module.css */
 
+.homeContainer {
+    width: 100%;
+}
+
+/* --- Seção Hero --- */
 .heroSection {
     text-align: center;
-    padding: 4rem 1rem;
-    margin-bottom: 3rem;
+    padding: 5rem 1rem;
+    margin-bottom: 4rem;
+    background-color: var(--cor-superficie);
+    border-radius: 16px;
+    border: 1px solid var(--cor-borda);
+}
+
+.heroContent {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .heroTitle {
-    font-size: 3rem;
+    font-size: 3.8rem;
+    font-weight: 700;
     color: var(--texto-primario);
     margin-bottom: 1rem;
+    line-height: 1.2;
 }
 
 .heroTitle span {
@@ -20,52 +35,231 @@
     font-size: 1.2rem;
     color: var(--texto-secundario);
     max-width: 600px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 2.5rem;
+}
+
+.heroActions {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+/* --- Título de Seção Padrão --- */
+.sectionTitle {
+    text-align: center;
+    font-size: 2.8rem;
+    margin-bottom: 3.5rem;
+    color: var(--texto-primario);
+    font-weight: 700;
+}
+
+/* --- Seção Como Funciona --- */
+.howItWorksSection {
+    padding: 5rem 1rem;
+}
+
+.stepsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.stepCard {
+    background-color: transparent;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.stepCard:hover {
+    background-color: var(--cor-superficie);
+    border-color: var(--cor-borda);
+    transform: translateY(-5px);
+}
+
+.stepCard h3 {
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1rem;
+}
+
+.stepCard p {
+    color: var(--texto-secundario);
+    line-height: 1.6;
+}
+
+/* --- Artistas em Destaque --- */
+.featuredSection {
+    padding: 5rem 1rem;
+    background-color: var(--cor-superficie);
+    border-radius: 16px;
+    border: 1px solid var(--cor-borda);
 }
 
 .artistsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
 }
 
-/* NOVO ESTILO PARA O LINK DO CARD */
 .cardLink {
     text-decoration: none;
     color: inherit;
-    /* Herda a cor do texto padrão */
     display: flex;
-    /* Garante que o link ocupe todo o espaço do card */
 }
 
-/* NOVOS ESTILOS PARA MENSAGENS */
-.message {
+.viewAll {
+    margin-top: 3rem;
+    text-align: center;
+}
+
+
+/* --- Seção Categorias --- */
+.categoriesSection {
+    padding: 5rem 1rem;
+}
+
+.categoriesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.categoryCard {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    transition: transform 0.2s, border-color 0.2s, color 0.2s;
     color: var(--texto-secundario);
+}
+
+.categoryCard:hover {
+    transform: translateY(-5px);
+    border-color: var(--cor-primaria);
+    color: var(--cor-primaria);
+}
+
+.categoryIcon {
+    font-size: 2.5rem;
+    transition: color 0.2s;
+}
+
+.categoryCard:hover .categoryIcon {
+    color: var(--cor-primaria);
+}
+
+.categoryCard span {
+    font-weight: 500;
+    text-align: center;
+    transition: color 0.2s;
+}
+
+.categoryCard:hover span {
+    color: var(--texto-primario);
+}
+
+.allCategoriesCard {
+    background-color: transparent;
+    border-style: dashed;
+}
+
+.allCategoriesCard span {
+    color: var(--texto-secundario);
+}
+
+.allCategoriesCard:hover span {
+    color: var(--cor-primaria);
+}
+
+/* --- Seção CTA Final --- */
+.ctaSection {
+    text-align: center;
+    background-color: var(--cor-primaria);
+    color: white;
+    padding: 5rem 1rem;
+    border-radius: 12px;
+    margin-top: 4rem;
+}
+
+.ctaSection h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.ctaSection p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Loader */
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--cor-superficie);
+    border-bottom-color: var(--cor-primaria);
+    border-radius: 50%;
+    display: block;
+    margin: 2rem auto;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Mensagens --- */
+.message,
+.messageError {
     text-align: center;
     padding: 2rem;
+    color: var(--texto-secundario);
 }
 
 .messageError {
     color: #ff8a8a;
-    text-align: center;
-    padding: 2rem;
 }
-
 
 /* --- Responsividade --- */
 @media (max-width: 768px) {
     .heroTitle {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
     }
 
-    .heroSection {
-        padding: 3rem 1rem;
+    .heroSection,
+    .featuredSection,
+    .howItWorksSection,
+    .categoriesSection,
+    .ctaSection {
+        padding: 4rem 1rem;
     }
-}
 
-@media (max-width: 480px) {
-    .artistsGrid {
-        grid-template-columns: 1fr;
-        /* Uma coluna em telas muito pequenas */
+    .sectionTitle {
+        font-size: 2.2rem;
+    }
+
+    .heroActions {
+        flex-direction: column;
     }
 }
