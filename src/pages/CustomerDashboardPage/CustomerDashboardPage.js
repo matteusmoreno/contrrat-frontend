@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getProfile, getContractsForCustomer, uploadImage, updateProfilePicture } from '../../services/api';
-import styles from './CustomerDashboardPage.module.css'; // <-- CORREÇÃO APLICADA AQUI
+import styles from './CustomerDashboardPage.module.css'; // CORREÇÃO: O caminho do CSS estava errado. Agora está correto.
 import { Link } from 'react-router-dom';
 import Button from '../../components/Button/Button';
 import CustomerProfileSummary from '../../components/CustomerProfileSummary/CustomerProfileSummary';
