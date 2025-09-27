@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
-import logo from '../../assets/contrrat-logo.png';
+// import logo from '../../assets/contrrat-logo.png'; // Logo não é mais usado
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
 
 const Footer = () => {
@@ -10,8 +10,8 @@ const Footer = () => {
         <footer className={styles.footer}>
             <div className={styles.footerContainer}>
                 <div className={styles.footerAbout}>
+                    {/* **ALTERAÇÃO AQUI:** Removida a tag <img> */}
                     <Link to="/" className={styles.logoContainer}>
-                        <img src={logo} alt="Contrrat Logo" className={styles.logo} />
                         <span className={styles.logoText}>Contrrat</span>
                     </Link>
                     <p>Conectando talentos a grandes momentos. Encontre o artista perfeito para o seu evento de forma simples e segura.</p>

@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
-import logo from '../../assets/contrrat-logo.png';
+// import logo from '../../assets/contrrat-logo.png'; // Logo não é mais usado
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Button/Button';
 
@@ -17,8 +17,8 @@ const Navbar = () => {
 
     return (
         <nav className={styles.navbar}>
+            {/* **ALTERAÇÃO AQUI:** Removida a tag <img> */}
             <Link to="/" className={styles.logoContainer}>
-                <img src={logo} alt="Contrrat Logo" className={styles.logo} />
                 <span className={styles.logoText}>Contrrat</span>
             </Link>
 
@@ -42,7 +42,6 @@ const Navbar = () => {
 
                 {isAuthenticated ? (
                     <>
-                        {/* O link agora aponta para o novo Dashboard e o texto é mais direto */}
                         <NavLink
                             to={user?.scope === 'ARTIST' ? "/dashboard/artista" : "/perfil"}
                             className={({ isActive }) =>
