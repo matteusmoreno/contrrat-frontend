@@ -2,7 +2,6 @@
 import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
-// import logo from '../../assets/contrrat-logo.png'; // Logo não é mais usado
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Button/Button';
 
@@ -17,7 +16,6 @@ const Navbar = () => {
 
     return (
         <nav className={styles.navbar}>
-            {/* **ALTERAÇÃO AQUI:** Removida a tag <img> */}
             <Link to="/" className={styles.logoContainer}>
                 <span className={styles.logoText}>Contrrat</span>
             </Link>
@@ -43,7 +41,8 @@ const Navbar = () => {
                 {isAuthenticated ? (
                     <>
                         <NavLink
-                            to={user?.scope === 'ARTIST' ? "/dashboard/artista" : "/perfil"}
+                            // **LÓGICA ATUALIZADA AQUI**
+                            to={user?.scope === 'ARTIST' ? "/dashboard/artista" : "/dashboard/cliente"}
                             className={({ isActive }) =>
                                 isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
                             }

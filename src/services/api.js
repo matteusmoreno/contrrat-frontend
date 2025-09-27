@@ -19,22 +19,20 @@ export const login = (username, password) => {
     return api.post('/login', { username, password });
 };
 
-// **FUNÇÕES NOVAS E ATUALIZADAS**
 export const getArtists = () => {
     return api.get('/artists/all');
 };
 
 export const getPremiumArtists = () => {
-    return api.get('/artists/premium-artists'); // Nova função
+    return api.get('/artists/premium-artists');
 };
 
 export const getArtistsByField = (artisticField) => {
-    return api.get(`/artists/artists-by-field/${artisticField}`); // Nova função
+    return api.get(`/artists/artists-by-field/${artisticField}`);
 };
-// **FIM DAS NOVAS FUNÇÕES**
 
 export const getAllActiveArtists = () => {
-    return api.get('/artists/all-active?size=200'); 
+    return api.get('/artists/all-active?size=200');
 };
 
 export const getArtistById = (id) => {
@@ -60,6 +58,11 @@ export const updateCustomer = (customerData) => {
 export const getProfile = (profileType, id) => {
     const endpoint = profileType === 'ARTIST' ? `/artists/${id}` : `/customers/${id}`;
     return api.get(endpoint);
+};
+
+// **NOVA FUNÇÃO ADICIONADA**
+export const getContractsForCustomer = () => {
+    return api.get('/contracts/my-contracts-as-customer?size=100');
 };
 
 export const uploadImage = async (file) => {

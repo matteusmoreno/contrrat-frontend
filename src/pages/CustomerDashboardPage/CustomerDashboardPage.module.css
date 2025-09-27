@@ -1,0 +1,59 @@
+/* src/pages/CustomerDashboardPage/CustomerDashboardPage.module.css */
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.ctaCard {
+    background: var(--cor-superficie);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--cor-borda);
+    text-align: center;
+}
+
+.ctaCard h2 {
+    color: var(--cor-primaria);
+    margin-bottom: 0.5rem;
+}
+
+.ctaCard p {
+    color: var(--texto-secundario);
+    margin-bottom: 1.5rem;
+}
+
+.message,
+.messageError {
+    text-align: center;
+    padding: 5rem;
+    font-size: 1.2rem;
+    color: var(--texto-secundario);
+}
+
+.messageError {
+    color: #ff8a8a;
+}
+
+@media (max-width: 1024px) {
+    .dashboardGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: static;
+        margin-bottom: 2rem;
+    }
+}

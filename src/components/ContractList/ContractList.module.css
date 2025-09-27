@@ -1,0 +1,129 @@
+/* src/components/ContractList/ContractList.module.css */
+.listContainer {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1.5rem;
+}
+
+.cardsGrid {
+    display: grid;
+    gap: 1rem;
+}
+
+.card {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+    background-color: var(--cor-fundo);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--cor-borda);
+}
+
+/* Cores por status */
+.card.pending_confirmation {
+    border-left-color: #f59e0b;
+}
+
+.card.confirmed {
+    border-left-color: #22c55e;
+}
+
+.card.rejected,
+.card.canceled {
+    border-left-color: #ef4444;
+}
+
+.card.completed {
+    border-left-color: #6b7280;
+}
+
+
+.artistInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.artistInfo img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.artistName {
+    font-weight: 500;
+    color: var(--texto-primario);
+    transition: color 0.2s;
+}
+
+.artistName:hover {
+    color: var(--cor-primaria);
+}
+
+.artisticField {
+    font-size: 0.9rem;
+    color: var(--texto-secundario);
+}
+
+.contractDetails {
+    font-size: 0.9rem;
+    color: var(--texto-secundario);
+}
+
+.status {
+    font-weight: 500;
+    text-align: right;
+    text-transform: capitalize;
+}
+
+.pending_confirmation .status {
+    color: #f59e0b;
+}
+
+.confirmed .status {
+    color: #22c55e;
+}
+
+.rejected .status,
+.canceled .status {
+    color: #ef4444;
+}
+
+.completed .status {
+    color: #6b7280;
+}
+
+
+.emptyMessage {
+    color: var(--texto-secundario);
+    padding: 1rem;
+    text-align: center;
+    background-color: var(--cor-fundo);
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .card {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .artistInfo {
+        flex-direction: column;
+    }
+
+    .status,
+    .contractDetails {
+        text-align: center;
+    }
+}
