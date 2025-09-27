@@ -1,7 +1,7 @@
 // src/pages/LoginPage/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext'; // Importe nosso hook
+import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/Button/Button';
 import styles from './LoginPage.module.css';
 
@@ -10,7 +10,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const { login } = useAuth(); // Obtenha a função login do contexto
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
@@ -19,7 +19,7 @@ const LoginPage = () => {
 
         try {
             await login(username, password);
-            navigate('/'); // Redireciona para a home SEM recarregar a página
+            navigate('/');
         } catch (err) {
             setError('Usuário ou senha inválidos. Tente novamente.');
         }
@@ -50,7 +50,13 @@ const LoginPage = () => {
                     />
                 </div>
                 {error && <p className={styles.error}>{error}</p>}
-                <Button type="submit">Entrar</Button>
+
+                {/* **INÍCIO DA ALTERAÇÃO** */}
+                <div className={styles.buttonContainer}>
+                    <Button type="submit">Entrar</Button>
+                </div>
+                {/* **FIM DA ALTERAÇÃO** */}
+
                 <p className={styles.formFooter}>
                     Não tem uma conta? <Link to="/register">Cadastre-se</Link>
                 </p>
