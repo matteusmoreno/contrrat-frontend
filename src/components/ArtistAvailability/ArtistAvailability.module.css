@@ -15,13 +15,13 @@
 
 .contentGrid {
     display: grid;
-    grid-template-columns: 320px 1fr 300px;
+    grid-template-columns: 1fr 350px;
+    /* Calendário flexível, resumo fixo */
     gap: 2rem;
     align-items: flex-start;
 }
 
 .calendarSection,
-.slotsSection,
 .summarySection {
     background-color: var(--cor-fundo);
     border: 1px solid var(--cor-borda);
@@ -29,7 +29,26 @@
     padding: 1.5rem;
 }
 
-.slotsSection h3,
+/* NOVO: Estilos para o navegador de mês */
+.monthNavigator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.monthNavigator h3 {
+    color: var(--cor-primaria);
+    font-size: 1.25rem;
+}
+
+.monthNavigator button {
+    padding: 0.5rem 0.8rem;
+}
+
+/* FIM NOVO */
+
+
 .summarySection h3 {
     font-size: 1.25rem;
     color: var(--cor-primaria);
@@ -37,81 +56,43 @@
     text-align: center;
 }
 
-.slotsList {
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-.slotDate {
-    font-size: 0.9rem;
-    color: var(--texto-secundario);
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--cor-borda);
-}
-
-.slotGroup {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-}
-
-.slotButton {
-    background-color: var(--cor-superficie);
-    border: 1px solid var(--cor-borda);
-    color: var(--texto-primario);
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-
-.slotButton:hover {
-    background-color: var(--cor-primaria-hover);
-    border-color: var(--cor-primaria-hover);
-}
-
-.slotButton.selected {
-    background-color: var(--cor-primaria);
-    border-color: var(--cor-primaria);
-    color: white;
-}
-
-.slotPrice {
-    font-size: 0.8rem;
-    opacity: 0.8;
-}
-
-.noSlots {
-    color: var(--texto-secundario);
-    text-align: center;
-    padding: 2rem 0;
-}
-
 .summarySection {
     position: sticky;
     top: 100px;
-    /* Adjust based on navbar height */
 }
 
 .summaryList {
     list-style: none;
     margin-bottom: 1.5rem;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .summaryList li {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 0.75rem 0;
     border-bottom: 1px solid var(--cor-borda);
     color: var(--texto-secundario);
 }
+
+/* NOVO: Estilos para os detalhes do slot e botão de remover */
+.slotDetails {
+    display: flex;
+    flex-direction: column;
+}
+
+.removeButton {
+    background: none;
+    border: none;
+    color: #f87171;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+/* FIM NOVO */
 
 .summaryTotal {
     display: flex;

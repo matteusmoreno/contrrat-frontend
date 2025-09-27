@@ -70,14 +70,16 @@ const ArtistDetailsPage = () => {
                 </div>
             </section>
 
-            {isAuthenticated && user?.scope === 'CUSTOMER' ? (
+            {isAuthenticated && user?.authorities === 'ROLE_CUSTOMER' ? (
                 <ArtistAvailability artist={artist} availabilities={availabilities} />
             ) : (
                 <div className={styles.loginPrompt}>
                     <p>Você precisa estar logado como contratante para ver a agenda e fazer uma proposta.</p>
-                    <Link to="/login">
-                        <Button>Entrar</Button>
-                    </Link>
+                    {!isAuthenticated &&
+                        <Link to="/login">
+                            <Button>Entrar</Button>
+                        </Link>
+                    }
                 </div>
             )}
         </div>

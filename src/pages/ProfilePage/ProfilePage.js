@@ -15,7 +15,7 @@ import TextareaField from '../../components/TextareaField/TextareaField';
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Perfil";
 
-const EditProfilePage = () => {
+const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para ProfilePage
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
 
@@ -29,7 +29,6 @@ const EditProfilePage = () => {
     const [isDirty, setIsDirty] = useState(false);
     const [artisticFieldOptions, setArtisticFieldOptions] = useState([]);
 
-    // Estado para o cropper de imagem
     const [imgSrc, setImgSrc] = useState('');
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState(null);
@@ -38,19 +37,21 @@ const EditProfilePage = () => {
     const fileInputRef = useRef(null);
     const imgRef = useRef(null);
 
-    // Busca os dados iniciais do perfil
     useEffect(() => {
         const fetchProfileData = async () => {
             if (user) {
                 setLoading(true);
                 setError(null);
                 try {
-                    const profileId = user.scope === 'ARTIST' ? user.artistId : user.customerId;
+                    const isArtist = user.authorities === 'ROLE_ARTIST';
+                    const profileType = isArtist ? 'ARTIST' : 'CUSTOMER';
+                    const profileId = isArtist ? user.artistId : user.customerId;
+
                     if (!profileId) throw new Error("ID do perfil não encontrado.");
 
                     const [profileResponse, fieldsResponse] = await Promise.all([
-                        getProfile(user.scope, profileId),
-                        user.scope === 'ARTIST' ? getArtisticFields() : Promise.resolve({ data: [] })
+                        getProfile(profileType, profileId),
+                        isArtist ? getArtisticFields() : Promise.resolve({ data: [] })
                     ]);
 
                     const data = profileResponse.data;
@@ -59,19 +60,18 @@ const EditProfilePage = () => {
                         name: data.name,
                         email: data.email,
                         phoneNumber: data.phoneNumber,
-                        birthDate: data.birthDate.split('T')[0], // Formato YYYY-MM-DD
+                        birthDate: data.birthDate.split('T')[0],
                         description: data.description || '',
                         artisticField: data.artisticField,
                         cep: data.address.zipCode,
                         number: data.address.number,
                         complement: data.address.complement || '',
-                        profilePictureUrl: data.profilePictureUrl // Adiciona a URL da foto de perfil
+                        profilePictureUrl: data.profilePictureUrl
                     };
 
                     setFormData(initialFormData);
                     setInitialData(initialFormData);
 
-                    // Prepara os valores de exibição com máscaras
                     const birthDateFormatted = new Date(data.birthDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
                     const phoneFormatted = data.phoneNumber.replace(/^(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3');
                     setDisplayValues({
@@ -80,7 +80,7 @@ const EditProfilePage = () => {
                         cep: data.address.zipCode
                     });
 
-                    if (user.scope === 'ARTIST') {
+                    if (isArtist) {
                         setArtisticFieldOptions(fieldsResponse.data);
                     }
 
@@ -97,10 +97,8 @@ const EditProfilePage = () => {
         }
     }, [user, authLoading]);
 
-    // Verifica se o formulário foi alterado
     useEffect(() => {
         if (initialData && formData) {
-            // Exclui 'profilePictureUrl' da comparação para não marcar como 'dirty' se só a imagem mudar
             const comparableFormData = { ...formData };
             delete comparableFormData.profilePictureUrl;
             const comparableInitialData = { ...initialData };
@@ -128,7 +126,7 @@ const EditProfilePage = () => {
                 const year = rawValue.slice(4, 8);
                 setFormData(prev => ({ ...prev, birthDate: `${year}-${month}-${day}` }));
             } else {
-                setFormData(prev => ({ ...prev, birthDate: '' })); // Limpa se incompleto ou inválido
+                setFormData(prev => ({ ...prev, birthDate: '' }));
             }
         } else if (name === 'phoneNumber') {
             maskedValue = rawValue.replace(/^(\d{2})(\d{4,5})(\d{4})/, '($1)$2-$3');
@@ -151,35 +149,29 @@ const EditProfilePage = () => {
         setSuccess('');
         setIsSubmitting(true);
 
-        // Envia apenas os campos que foram alterados
         const changedData = {};
         for (const key in formData) {
-            // Garante que 'profilePictureUrl' não seja enviado a menos que seja um campo do backend
             if (key !== 'profilePictureUrl' && formData[key] !== initialData[key]) {
                 changedData[key] = formData[key];
             }
         }
 
-        // Sempre envia o ID
         changedData.id = formData.id;
 
-        // Se nenhum campo de texto foi alterado, mas a foto sim, não tente atualizar o perfil
         if (Object.keys(changedData).length === 1 && changedData.hasOwnProperty('id')) {
             setError("Nenhuma alteração detectada para salvar.");
             setIsSubmitting(false);
             return;
         }
 
-
         try {
             let response;
-            if (user.scope === 'ARTIST') {
+            if (user.authorities === 'ROLE_ARTIST') {
                 response = await updateArtist(changedData);
             } else {
                 response = await updateCustomer(changedData);
             }
 
-            // Atualiza o estado inicial com os novos dados salvos
             const data = response.data;
             const newInitialData = {
                 id: data.id,
@@ -192,13 +184,13 @@ const EditProfilePage = () => {
                 cep: data.address.zipCode,
                 number: data.address.number,
                 complement: data.address.complement || '',
-                profilePictureUrl: initialData.profilePictureUrl // Mantém a URL da foto de perfil
+                profilePictureUrl: initialData.profilePictureUrl
             };
             setInitialData(newInitialData);
             setFormData(newInitialData);
 
             setSuccess('Perfil atualizado com sucesso!');
-            setTimeout(() => setSuccess(''), 3000); // Limpa a mensagem de sucesso
+            setTimeout(() => setSuccess(''), 3000);
 
         } catch (err) {
             const errorMessage = err.response?.data || 'Erro ao atualizar o perfil.';
@@ -208,7 +200,6 @@ const EditProfilePage = () => {
         }
     };
 
-    // --- Funções de Upload de Imagem ---
     const handleImageClick = () => { if (!uploading) fileInputRef.current.click(); };
 
     const onSelectFile = (e) => {
@@ -234,7 +225,7 @@ const EditProfilePage = () => {
         if (!completedCrop || !imgRef.current) return;
         setUploading(true);
         setIsCropperOpen(false);
-        setError(null); // Limpa erros anteriores antes de um novo upload
+        setError(null);
 
         const canvas = document.createElement('canvas');
         const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
@@ -247,8 +238,9 @@ const EditProfilePage = () => {
         canvas.toBlob(async (blob) => {
             try {
                 const imageUrl = await uploadImage(blob);
-                await updateProfilePicture(user.scope, imageUrl);
-                setInitialData(prev => ({ ...prev, profilePictureUrl: imageUrl })); // Atualiza a foto imediatamente no estado
+                const profileType = user.authorities === 'ROLE_ARTIST' ? 'ARTIST' : 'CUSTOMER';
+                await updateProfilePicture(profileType, imageUrl);
+                setInitialData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
                 setSuccess('Foto de perfil atualizada!');
                 setTimeout(() => setSuccess(''), 3000);
             } catch (err) {
@@ -259,11 +251,10 @@ const EditProfilePage = () => {
             }
         }, 'image/jpeg');
     };
-    // --- Fim das Funções de Upload ---
 
     if (loading || authLoading) return <div className={styles.message}>Carregando...</div>;
-    if (error && !formData) return <div className={styles.messageError}>{error}</div>; // Exibe erro se não conseguir carregar o perfil
-    if (!formData || !initialData) return null; // Não renderiza o formulário enquanto os dados não estiverem prontos
+    if (error && !formData) return <div className={styles.messageError}>{error}</div>;
+    if (!formData || !initialData) return null;
 
     return (
         <>
@@ -280,12 +271,10 @@ const EditProfilePage = () => {
             </Modal>
             <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={onSelectFile} accept="image/png, image/jpeg" />
 
-
             <div className={styles.pageContainer}>
                 <form className={styles.form} onSubmit={handleSubmit}>
                     <header className={styles.header}>
                         <div className={styles.imageContainer} onClick={handleImageClick} title="Clique para alterar sua foto">
-                            {/* **ALTERAÇÃO AQUI**: Usa initialData.profilePictureUrl para exibir a foto atual */}
                             {uploading ? <div className={styles.imageLoader}></div> : <img src={initialData.profilePictureUrl || placeholderImage} alt="Perfil" className={styles.profileImage} />}
                             <div className={styles.imageOverlay}><span>&#128247;</span></div>
                         </div>
@@ -308,7 +297,7 @@ const EditProfilePage = () => {
                         </div>
                     </div>
 
-                    {user.scope === 'ARTIST' && (
+                    {user.authorities === 'ROLE_ARTIST' && (
                         <div className={styles.formSection}>
                             <h2>Sobre sua Arte</h2>
                             <div className={styles.grid}>
@@ -341,4 +330,4 @@ const EditProfilePage = () => {
     );
 };
 
-export default EditProfilePage;
+export default ProfilePage;

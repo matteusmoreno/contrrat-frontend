@@ -244,7 +244,10 @@ const ArtistDashboardPage = () => {
             }
             try {
                 const imageUrl = await uploadImage(blob);
-                await updateProfilePicture(user.scope, imageUrl);
+                // --- INÍCIO DA CORREÇÃO ---
+                const profileType = user.authorities === 'ROLE_ARTIST' ? 'ARTIST' : 'CUSTOMER';
+                await updateProfilePicture(profileType, imageUrl);
+                // --- FIM DA CORREÇÃO ---
                 setProfileData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
             } catch (err) {
                 console.error("Erro no upload:", err);
@@ -261,7 +264,9 @@ const ArtistDashboardPage = () => {
         return <div className={styles.container}><p>Carregando dashboard...</p></div>;
     }
 
-    if (!user || user.scope !== 'ARTIST') {
+    // --- INÍCIO DA CORREÇÃO ---
+    if (!user || user.authorities !== 'ROLE_ARTIST') {
+        // --- FIM DA CORREÇÃO ---
         return <div className={styles.container}><p>Acesso negado. Esta página é apenas para artistas.</p></div>;
     }
 
@@ -282,7 +287,6 @@ const ArtistDashboardPage = () => {
 
     return (
         <>
-            {/* Modal de Recorte de Imagem */}
             <Modal isOpen={isCropperOpen} onClose={() => setIsCropperOpen(false)}>
                 <h3 style={{ marginBottom: '1rem', color: 'var(--texto-primario)' }}>Recorte sua Imagem</h3>
                 {imgSrc && (
@@ -303,7 +307,6 @@ const ArtistDashboardPage = () => {
                 </div>
             </Modal>
 
-            {/* Input de Arquivo Escondido */}
             <input
                 type="file"
                 ref={fileInputRef}

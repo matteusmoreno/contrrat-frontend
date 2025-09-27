@@ -41,8 +41,9 @@ const Navbar = () => {
                 {isAuthenticated ? (
                     <>
                         <NavLink
-                            // **LÓGICA ATUALIZADA AQUI**
-                            to={user?.scope === 'ARTIST' ? "/dashboard/artista" : "/dashboard/cliente"}
+                            // --- INÍCIO DA CORREÇÃO ---
+                            to={user?.authorities === 'ROLE_ARTIST' ? "/dashboard/artista" : "/dashboard/cliente"}
+                            // --- FIM DA CORREÇÃO ---
                             className={({ isActive }) =>
                                 isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
                             }

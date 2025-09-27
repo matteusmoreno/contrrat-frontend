@@ -1,0 +1,65 @@
+/* src/components/HourSelectionModal/HourSelectionModal.module.css */
+.container {
+    padding: 1.5rem 2rem;
+    width: 100%;
+    min-width: 500px;
+    text-align: center;
+}
+
+.container h3 {
+    margin-bottom: 0.5rem;
+    color: var(--texto-primario);
+}
+
+.dateLabel {
+    margin-bottom: 2rem;
+    color: var(--cor-primaria);
+    font-weight: 500;
+}
+
+.hoursGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.hourButton {
+    padding: 1rem 0.5rem;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-superficie);
+    color: var(--texto-primario);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.hourButton:hover {
+    background-color: var(--cor-primaria-hover);
+    border-color: var(--cor-primaria-hover);
+}
+
+.hourButton.selected {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    color: white;
+    transform: scale(1.05);
+}
+
+.priceText {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 1px solid var(--cor-borda);
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+}
