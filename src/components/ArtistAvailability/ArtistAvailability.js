@@ -7,7 +7,7 @@ import { createContract } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const ArtistAvailability = ({ artist, availabilities }) => {
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentDate] = useState(new Date()); // <-- CORREÇÃO APLICADA AQUI
     const [selectedSlots, setSelectedSlots] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');

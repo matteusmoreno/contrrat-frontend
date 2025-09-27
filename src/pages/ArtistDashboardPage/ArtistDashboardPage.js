@@ -7,10 +7,20 @@ import ProfileSummary from '../../components/ProfileSummary/ProfileSummary';
 import TodaySchedule from '../../components/TodaySchedule/TodaySchedule';
 import Button from '../../components/Button/Button';
 import Calendar from '../../components/Calendar/Calendar';
-import Modal from '../../components/Modal/Modal'; // Importar Modal
-import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'; // Importar ReactCrop
-import 'react-image-crop/dist/ReactCrop.css'; // Importar CSS do ReactCrop
-import { getAllAvailabilityByArtistId, getProfile, createAvailability, updateAvailability, deleteAvailability, uploadImage, updateProfilePicture } from '../../services/api';
+import Modal from '../../components/Modal/Modal';
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import {
+    getAllAvailabilityByArtistId,
+    getProfile,
+    createAvailability,
+    updateAvailability,
+    deleteAvailability,
+    uploadImage,
+    updateProfilePicture,
+    getContractsForArtist
+} from '../../services/api';
+import ContractProposals from '../../components/ContractProposals/ContractProposals';
 
 // Helper para formatar a data para a API
 const formatAsLocalDateTime = (date) => {
@@ -35,6 +45,7 @@ const ArtistDashboardPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [allAvailabilities, setAllAvailabilities] = useState([]);
+    const [contracts, setContracts] = useState([]);
 
     // --- Estados para o Modal de Imagem ---
     const [imgSrc, setImgSrc] = useState('');
@@ -50,9 +61,10 @@ const ArtistDashboardPage = () => {
         if (user?.artistId) {
             setPageLoading(true);
             try {
-                const [availResponse, profileResponse] = await Promise.all([
+                const [availResponse, profileResponse, contractsResponse] = await Promise.all([
                     getAllAvailabilityByArtistId(user.artistId),
-                    getProfile('ARTIST', user.artistId)
+                    getProfile('ARTIST', user.artistId),
+                    getContractsForArtist()
                 ]);
 
                 const fetchedAvailabilities = availResponse.data.content || [];
@@ -80,6 +92,7 @@ const ArtistDashboardPage = () => {
                 setTodayAvailabilities(JSON.parse(JSON.stringify(state)));
                 setInitialTodayAvailabilities(JSON.parse(JSON.stringify(state)));
                 setProfileData(profileResponse.data);
+                setContracts(contractsResponse.data.content || []);
                 setIsDirty(false);
                 setError('');
 
@@ -265,6 +278,8 @@ const ArtistDashboardPage = () => {
         return { month: d.getMonth(), year: d.getFullYear() };
     });
 
+    const pendingContracts = contracts.filter(c => c.status === 'PENDING_CONFIRMATION');
+
     return (
         <>
             {/* Modal de Recorte de Imagem */}
@@ -301,12 +316,17 @@ const ArtistDashboardPage = () => {
                 <aside className={styles.sidebar}>
                     <ProfileSummary
                         profileData={profileData}
-                        onImageClick={handleImageClick} // Passa a função de clique
-                        isUploading={uploading} // Passa o estado de upload
+                        onImageClick={handleImageClick}
+                        isUploading={uploading}
                     />
                 </aside>
 
                 <main className={styles.mainContent}>
+                    <ContractProposals
+                        contracts={pendingContracts}
+                        onAction={fetchArtistData}
+                    />
+
                     <TodaySchedule
                         availabilities={todayAvailabilities}
                         onAvailabilitiesChange={handleAvailabilitiesChange}
