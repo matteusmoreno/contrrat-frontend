@@ -1,0 +1,164 @@
+/* src/components/ArtistAvailability/ArtistAvailability.module.css */
+.container {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 16px;
+    padding: 2.5rem;
+}
+
+.title {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--texto-primario);
+    margin-bottom: 2.5rem;
+}
+
+.contentGrid {
+    display: grid;
+    grid-template-columns: 320px 1fr 300px;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.calendarSection,
+.slotsSection,
+.summarySection {
+    background-color: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.slotsSection h3,
+.summarySection h3 {
+    font-size: 1.25rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.slotsList {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.slotDate {
+    font-size: 0.9rem;
+    color: var(--texto-secundario);
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.slotGroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.slotButton {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    color: var(--texto-primario);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.slotButton:hover {
+    background-color: var(--cor-primaria-hover);
+    border-color: var(--cor-primaria-hover);
+}
+
+.slotButton.selected {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    color: white;
+}
+
+.slotPrice {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.noSlots {
+    color: var(--texto-secundario);
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.summarySection {
+    position: sticky;
+    top: 100px;
+    /* Adjust based on navbar height */
+}
+
+.summaryList {
+    list-style: none;
+    margin-bottom: 1.5rem;
+}
+
+.summaryList li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--cor-borda);
+    color: var(--texto-secundario);
+}
+
+.summaryTotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--texto-primario);
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+}
+
+.summarySection button {
+    width: 100%;
+}
+
+.noSlotsSummary {
+    text-align: center;
+    color: var(--texto-secundario);
+    padding: 2rem 0;
+    font-style: italic;
+}
+
+.messageError,
+.messageSuccess {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.messageError {
+    color: #ff8a8a;
+    background-color: rgba(255, 138, 138, 0.1);
+}
+
+.messageSuccess {
+    color: #8aff8a;
+    background-color: rgba(138, 255, 138, 0.1);
+}
+
+@media (max-width: 1024px) {
+    .contentGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .summarySection {
+        position: static;
+    }
+}

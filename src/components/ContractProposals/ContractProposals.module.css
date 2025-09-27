@@ -1,0 +1,75 @@
+/* src/components/ContractProposals/ContractProposals.module.css */
+.container {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1.5rem;
+}
+
+.cardList {
+    display: grid;
+    gap: 1rem;
+}
+
+.card {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+    gap: 1.5rem;
+    background-color: var(--cor-fundo);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--cor-primaria);
+}
+
+.customerInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.customerInfo img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.customerInfo div {
+    display: flex;
+    flex-direction: column;
+}
+
+.customerName {
+    font-weight: 500;
+    color: var(--texto-primario);
+}
+
+.proposalDate {
+    font-size: 0.85rem;
+    color: var(--texto-secundario);
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: var(--texto-secundario);
+}
+
+.totalPrice {
+    font-weight: 500;
+    color: var(--texto-primario);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}

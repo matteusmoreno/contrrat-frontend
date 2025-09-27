@@ -60,10 +60,28 @@ export const getProfile = (profileType, id) => {
     return api.get(endpoint);
 };
 
-// **NOVA FUNÇÃO ADICIONADA**
 export const getContractsForCustomer = () => {
     return api.get('/contracts/my-contracts-as-customer?size=100');
 };
+
+// --- NOVAS FUNÇÕES DE CONTRATO ---
+export const getContractsForArtist = () => {
+    return api.get('/contracts/my-contracts-as-artist?size=100');
+};
+
+export const createContract = (availabilityIds) => {
+    return api.post('/contracts', { availabilityIds });
+};
+
+export const confirmContract = (contractId) => {
+    return api.patch(`/contracts/confirm/${contractId}`);
+};
+
+export const rejectContract = (contractId) => {
+    return api.patch(`/contracts/reject/${contractId}`);
+};
+// --- FIM DAS NOVAS FUNÇÕES ---
+
 
 export const uploadImage = async (file) => {
     const signatureResponse = await api.get('/signature');
@@ -101,7 +119,7 @@ export const createAvailability = (availabilityData) => {
 };
 
 export const getAllAvailabilityByArtistId = (artistId) => {
-    return api.get(`/availability/get-all-by-artist/${artistId}`);
+    return api.get(`/availability/get-all-by-artist/${artistId}?size=1000`); // Aumentado para buscar mais
 };
 
 export const updateAvailability = (availabilityData) => {
