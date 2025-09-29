@@ -64,7 +64,6 @@ export const getContractsForCustomer = () => {
     return api.get('/contracts/my-contracts-as-customer?size=100');
 };
 
-// --- NOVAS FUNÇÕES DE CONTRATO ---
 export const getContractsForArtist = () => {
     return api.get('/contracts/my-contracts-as-artist?size=100');
 };
@@ -80,7 +79,6 @@ export const confirmContract = (contractId) => {
 export const rejectContract = (contractId) => {
     return api.patch(`/contracts/reject/${contractId}`);
 };
-// --- FIM DAS NOVAS FUNÇÕES ---
 
 
 export const uploadImage = async (file) => {
@@ -117,6 +115,12 @@ export const updateProfilePicture = (profileType, imageUrl) => {
 export const createAvailability = (availabilityData) => {
     return api.post('/availability', availabilityData);
 };
+
+// --- FUNÇÃO ADICIONADA ---
+export const getAvailabilityById = (id) => {
+    return api.get(`/availability/${id}`);
+};
+// --- FIM DA FUNÇÃO ADICIONADA ---
 
 export const getAllAvailabilityByArtistId = (artistId) => {
     return api.get(`/availability/get-all-by-artist/${artistId}?size=1000`); // Aumentado para buscar mais

@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import styles from './ContractProposals.module.css';
 import Button from '../Button/Button';
 import { confirmContract, rejectContract } from '../../services/api';
+import ContractDetailsModal from '../ContractDetailsModal/ContractDetailsModal';
 
-const ProposalCard = ({ contract, onAction }) => {
+const ProposalCard = ({ contract, onAction, onCardClick }) => {
     const { customer, totalPrice, createdAt, availabilityIds } = contract;
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleAction = async (action) => {
+    const handleAction = async (e, action) => {
+        e.stopPropagation(); // Impede que o clique no botão abra o modal
         setIsLoading(true);
         try {
             if (action === 'confirm') {
@@ -19,14 +21,13 @@ const ProposalCard = ({ contract, onAction }) => {
             onAction(); // Callback para atualizar a lista no componente pai
         } catch (error) {
             console.error(`Erro ao ${action} o contrato`, error);
-            // Idealmente, mostrar um erro para o usuário aqui
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className={styles.card}>
+        <div className={styles.card} onClick={() => onCardClick(contract)}>
             <div className={styles.customerInfo}>
                 <img src={customer.profilePictureUrl || "https://via.placeholder.com/50"} alt={customer.name} />
                 <div>
@@ -43,10 +44,10 @@ const ProposalCard = ({ contract, onAction }) => {
                 </span>
             </div>
             <div className={styles.actions}>
-                <Button onClick={() => handleAction('reject')} variant="outline" disabled={isLoading}>
+                <Button onClick={(e) => handleAction(e, 'reject')} variant="outline" disabled={isLoading}>
                     Recusar
                 </Button>
-                <Button onClick={() => handleAction('confirm')} disabled={isLoading}>
+                <Button onClick={(e) => handleAction(e, 'confirm')} disabled={isLoading}>
                     Aceitar
                 </Button>
             </div>
@@ -55,19 +56,34 @@ const ProposalCard = ({ contract, onAction }) => {
 };
 
 const ContractProposals = ({ contracts, onAction }) => {
+    const [selectedContract, setSelectedContract] = useState(null);
+
     if (!contracts || contracts.length === 0) {
-        return null; // Não renderiza nada se não houver propostas
+        return null;
     }
 
     return (
-        <div className={styles.container}>
-            <h3 className={styles.title}>Novas Propostas de Contrato</h3>
-            <div className={styles.cardList}>
-                {contracts.map(contract => (
-                    <ProposalCard key={contract.id} contract={contract} onAction={onAction} />
-                ))}
+        <>
+            <ContractDetailsModal
+                isOpen={!!selectedContract}
+                onClose={() => setSelectedContract(null)}
+                contract={selectedContract}
+                onAction={onAction}
+            />
+            <div className={styles.container}>
+                <h3 className={styles.title}>Novas Propostas de Contrato</h3>
+                <div className={styles.cardList}>
+                    {contracts.map(contract => (
+                        <ProposalCard
+                            key={contract.id}
+                            contract={contract}
+                            onAction={onAction}
+                            onCardClick={setSelectedContract}
+                        />
+                    ))}
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

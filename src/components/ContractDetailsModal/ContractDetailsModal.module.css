@@ -1,0 +1,145 @@
+/* src/components/ContractDetailsModal/ContractDetailsModal.module.css */
+.modalContent {
+    padding: 1rem 1.5rem;
+    min-width: 500px;
+}
+
+.title {
+    text-align: center;
+    color: var(--cor-primaria);
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+}
+
+.parties {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.party {
+    text-align: center;
+}
+
+.party h4 {
+    font-size: 0.9rem;
+    color: var(--texto-secundario);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.partyLink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--texto-primario);
+    transition: color 0.2s;
+}
+
+.partyLink:hover {
+    color: var(--cor-primaria);
+}
+
+.partyLink img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--cor-borda);
+}
+
+.detailsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    color: var(--texto-secundario);
+}
+
+.detailsGrid strong {
+    color: var(--texto-primario);
+}
+
+.status {
+    font-weight: 500;
+    text-transform: capitalize;
+    margin-left: 0.5rem;
+}
+
+.status.pending_confirmation {
+    color: #f59e0b;
+}
+
+.status.confirmed {
+    color: #22c55e;
+}
+
+.status.rejected,
+.status.canceled {
+    color: #ef4444;
+}
+
+.status.completed {
+    color: #6b7280;
+}
+
+.scheduleSection h4 {
+    font-size: 1.1rem;
+    color: var(--texto-primario);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.scheduleList {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.scheduleList li {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.scheduleList li:last-child {
+    border-bottom: none;
+}
+
+.scheduleDate {
+    color: var(--texto-secundario);
+}
+
+.scheduleTime {
+    font-weight: 500;
+}
+
+.schedulePrice {
+    font-weight: 500;
+    color: var(--cor-primaria);
+    text-align: right;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.error {
+    color: #ff8a8a;
+    text-align: center;
+    margin-top: 1rem;
+}
