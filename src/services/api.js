@@ -64,11 +64,9 @@ export const getProfile = (profileType, id) => {
     return api.get(endpoint);
 };
 
-// --- FUNÇÃO ADICIONADA ---
 export const upgradeToPremium = (artistId) => {
     return api.patch(`/artists/promote/${artistId}`);
 };
-// --- FIM DA FUNÇÃO ADICIONADA ---
 
 export const getContractsForCustomer = () => {
     return api.get('/contracts/my-contracts-as-customer?size=100');
@@ -90,6 +88,11 @@ export const rejectContract = (contractId) => {
     return api.patch(`/contracts/reject/${contractId}`);
 };
 
+// --- NOVA FUNÇÃO ADICIONADA ---
+export const cancelContract = (contractId) => {
+    return api.patch(`/contracts/cancel/${contractId}`);
+};
+// --- FIM DA NOVA FUNÇÃO ---
 
 export const uploadImage = async (file) => {
     const signatureResponse = await api.get('/signature');
@@ -131,7 +134,7 @@ export const getAvailabilityById = (id) => {
 };
 
 export const getAllAvailabilityByArtistId = (artistId) => {
-    return api.get(`/availability/get-all-by-artist/${artistId}?size=1000`); // Aumentado para buscar mais
+    return api.get(`/availability/get-all-by-artist/${artistId}?size=1000`);
 };
 
 export const updateAvailability = (availabilityData) => {

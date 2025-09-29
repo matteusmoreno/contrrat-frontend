@@ -3,17 +3,19 @@ import React, { useState } from 'react';
 import styles from './ContractList.module.css';
 import { Link } from 'react-router-dom';
 import ContractDetailsModal from '../ContractDetailsModal/ContractDetailsModal';
+import { useAuth } from '../../contexts/AuthContext'; // 1. Importar o useAuth
 
-const ContractCard = ({ contract, onCardClick }) => {
+const ContractCard = ({ contract, onCardClick, userRole }) => { // 2. Receber userRole como prop
     const { artist, customer, status, totalPrice, createdAt } = contract;
 
     const formattedDate = new Date(createdAt).toLocaleDateString('pt-BR');
     const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice);
 
-    // Determina qual perfil exibir com base no contexto (artista ou cliente)
-    const displayProfile = artist || customer;
-    const profileLink = artist ? `/artistas/${artist.id}` : `/clientes/${customer.id}`;
-    const profileRole = artist ? artist.artisticField : 'Contratante';
+    // --- LÓGICA DE EXIBIÇÃO CORRIGIDA ---
+    // Se o usuário logado for um artista, mostre o cliente. Senão, mostre o artista.
+    const displayProfile = userRole === 'ROLE_ARTIST' ? customer : artist;
+    const profileLink = userRole === 'ROLE_ARTIST' ? `/clientes/${customer.id}` : `/artistas/${artist.id}`;
+    const profileRole = userRole === 'ROLE_ARTIST' ? 'Contratante' : artist.artisticField;
 
     return (
         <div className={`${styles.card} ${styles[status.toLowerCase()]}`} onClick={() => onCardClick(contract)}>
@@ -38,6 +40,7 @@ const ContractCard = ({ contract, onCardClick }) => {
 
 const ContractList = ({ title, contracts, onAction }) => {
     const [selectedContract, setSelectedContract] = useState(null);
+    const { user } = useAuth(); // 3. Obter o usuário logado
 
     if (!contracts || contracts.length === 0) {
         return (
@@ -66,7 +69,12 @@ const ContractList = ({ title, contracts, onAction }) => {
                 <h3 className={styles.title}>{title}</h3>
                 <div className={styles.cardsGrid}>
                     {contracts.map(contract => (
-                        <ContractCard key={contract.id} contract={contract} onCardClick={setSelectedContract} />
+                        <ContractCard
+                            key={contract.id}
+                            contract={contract}
+                            onCardClick={setSelectedContract}
+                            userRole={user?.authorities} // 4. Passar a role para o Card
+                        />
                     ))}
                 </div>
             </div>

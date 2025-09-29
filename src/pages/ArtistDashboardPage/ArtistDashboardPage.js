@@ -21,8 +21,9 @@ import {
     getContractsForArtist
 } from '../../services/api';
 import ContractProposals from '../../components/ContractProposals/ContractProposals';
+import ContractList from '../../components/ContractList/ContractList';
+import HourAvailabilityModal from '../../components/AvailabilityModal/AvailabilityModal'; // 1. Importar o modal
 
-// Helper para formatar a data para a API
 const formatAsLocalDateTime = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -47,7 +48,6 @@ const ArtistDashboardPage = () => {
     const [allAvailabilities, setAllAvailabilities] = useState([]);
     const [contracts, setContracts] = useState([]);
 
-    // --- Estados para o Modal de Imagem ---
     const [imgSrc, setImgSrc] = useState('');
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState(null);
@@ -55,7 +55,11 @@ const ArtistDashboardPage = () => {
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef(null);
     const imgRef = useRef(null);
-    // --- Fim dos Estados para o Modal de Imagem ---
+
+    // --- 2. ADICIONAR ESTADOS PARA O MODAL DE AGENDA ---
+    const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+
 
     const fetchArtistData = useCallback(async () => {
         if (user?.artistId) {
@@ -117,6 +121,27 @@ const ArtistDashboardPage = () => {
         }
     }, [authLoading, user, fetchArtistData]);
 
+    // --- 3. ADICIONAR FUNÇÕES PARA CONTROLAR O MODAL ---
+    const handleCalendarDateClick = (date) => {
+        setSelectedDate(date);
+        setIsAgendaModalOpen(true);
+    };
+
+    const handleAgendaModalClose = () => {
+        setIsAgendaModalOpen(false);
+        setSelectedDate(null);
+        fetchArtistData(); // Re-busca os dados para atualizar a dashboard
+    };
+
+    const getAvailabilitiesForDate = (date) => {
+        if (!date) return [];
+        return allAvailabilities.filter(avail => {
+            const availDate = new Date(avail.startTime);
+            return availDate.toDateString() === date.toDateString();
+        });
+    };
+
+    // ... (demais funções handleSave, handleCancel, handleImageClick, etc. permanecem iguais)
     const handleAvailabilitiesChange = (newAvailabilities) => {
         setTodayAvailabilities(newAvailabilities);
         setIsDirty(JSON.stringify(newAvailabilities) !== JSON.stringify(initialTodayAvailabilities));
@@ -184,11 +209,7 @@ const ArtistDashboardPage = () => {
         }
     };
 
-    // --- Funções para o Modal de Imagem ---
-    const handleImageClick = () => {
-        if (uploading) return;
-        fileInputRef.current.click();
-    };
+    const handleImageClick = () => { if (!uploading) fileInputRef.current.click(); };
 
     const onSelectFile = (e) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -205,19 +226,12 @@ const ArtistDashboardPage = () => {
 
     const onImageLoad = (e) => {
         const { width, height } = e.currentTarget;
-        const initialCrop = centerCrop(
-            makeAspectCrop({ unit: '%', width: 90 }, 1, width, height),
-            width, height
-        );
+        const initialCrop = centerCrop(makeAspectCrop({ unit: '%', width: 90 }, 1, width, height), width, height);
         setCrop(initialCrop);
     };
 
     const handleCropAndUpload = async () => {
-        if (!completedCrop || !imgRef.current) {
-            setError("Área de corte inválida.");
-            return;
-        }
-
+        if (!completedCrop || !imgRef.current) return;
         setUploading(true);
         setIsCropperOpen(false);
         setError(null);
@@ -228,44 +242,30 @@ const ArtistDashboardPage = () => {
         canvas.width = completedCrop.width * scaleX;
         canvas.height = completedCrop.height * scaleY;
         const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
-            imgRef.current,
-            completedCrop.x * scaleX, completedCrop.y * scaleY,
-            completedCrop.width * scaleX, completedCrop.height * scaleY,
-            0, 0, canvas.width, canvas.height
-        );
+        ctx.drawImage(imgRef.current, completedCrop.x * scaleX, completedCrop.y * scaleY, completedCrop.width * scaleX, completedCrop.height * scaleY, 0, 0, canvas.width, canvas.height);
 
         canvas.toBlob(async (blob) => {
-            if (!blob) {
-                setError("Não foi possível processar a imagem.");
-                setUploading(false);
-                return;
-            }
             try {
                 const imageUrl = await uploadImage(blob);
                 const profileType = user.authorities === 'ROLE_ARTIST' ? 'ARTIST' : 'CUSTOMER';
                 await updateProfilePicture(profileType, imageUrl);
                 setProfileData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
             } catch (err) {
-                console.error("Erro no upload:", err);
-                setError("Falha ao enviar a imagem. Tente novamente.");
+                setError("Falha ao enviar a imagem.");
             } finally {
                 setUploading(false);
                 setImgSrc('');
             }
         }, 'image/jpeg');
     };
-    // --- Fim das Funções para o Modal de Imagem ---
+
 
     if (authLoading || pageLoading) {
         return <div className={styles.container}><p>Carregando dashboard...</p></div>;
     }
-
     if (!user || user.authorities !== 'ROLE_ARTIST') {
         return <div className={styles.container}><p>Acesso negado. Esta página é apenas para artistas.</p></div>;
     }
-
     if (!profileData) {
         return <div className={styles.container}><p>Não foi possível carregar os dados do perfil do artista.</p></div>;
     }
@@ -280,15 +280,26 @@ const ArtistDashboardPage = () => {
     });
 
     const pendingContracts = contracts.filter(c => c.status === 'PENDING_CONFIRMATION');
+    const confirmedContracts = contracts.filter(c => c.status === 'CONFIRMED');
+    const historyContracts = contracts.filter(c => ['REJECTED', 'CANCELED', 'COMPLETED'].includes(c.status));
 
     return (
         <>
+            {/* --- 4. RENDERIZAR O MODAL DE AGENDA --- */}
+            <HourAvailabilityModal
+                isOpen={isAgendaModalOpen}
+                onClose={handleAgendaModalClose}
+                date={selectedDate}
+                artistId={user.artistId}
+                existingAvailabilities={getAvailabilitiesForDate(selectedDate)}
+            />
+
             <Modal isOpen={isCropperOpen} onClose={() => setIsCropperOpen(false)}>
                 <h3 style={{ marginBottom: '1rem', color: 'var(--texto-primario)' }}>Recorte sua Imagem</h3>
                 {imgSrc && (
                     <ReactCrop
                         crop={crop}
-                        onChange={(_, percentCrop) => setCrop(percentCrop)}
+                        onChange={(_, p) => setCrop(p)}
                         onComplete={(c) => setCompletedCrop(c)}
                         aspect={1}
                         circularCrop
@@ -303,13 +314,7 @@ const ArtistDashboardPage = () => {
                 </div>
             </Modal>
 
-            <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                onChange={onSelectFile}
-                accept="image/png, image/jpeg"
-            />
+            <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={onSelectFile} accept="image/png, image/jpeg" />
 
             <div className={styles.dashboardGrid}>
                 <aside className={styles.sidebar}>
@@ -317,13 +322,19 @@ const ArtistDashboardPage = () => {
                         profileData={profileData}
                         onImageClick={handleImageClick}
                         isUploading={uploading}
-                        onUpdate={fetchArtistData} /* --- PROP ADICIONADA --- */
+                        onUpdate={fetchArtistData}
                     />
                 </aside>
 
                 <main className={styles.mainContent}>
                     <ContractProposals
                         contracts={pendingContracts}
+                        onAction={fetchArtistData}
+                    />
+
+                    <ContractList
+                        title="Próximos Eventos (Confirmados)"
+                        contracts={confirmedContracts}
                         onAction={fetchArtistData}
                     />
 
@@ -335,6 +346,12 @@ const ArtistDashboardPage = () => {
                         isDirty={isDirty}
                         isSubmitting={isSubmitting}
                         error={error}
+                    />
+
+                    <ContractList
+                        title="Histórico de Contratos"
+                        contracts={historyContracts}
+                        onAction={fetchArtistData}
                     />
 
                     <div className={styles.fullScheduleSection}>
@@ -350,7 +367,8 @@ const ArtistDashboardPage = () => {
                                     year={year}
                                     month={month}
                                     availabilities={allAvailabilities}
-                                    onDateClick={() => navigate('/minha-agenda')}
+                                    // --- 5. ALTERAR O EVENTO DE CLIQUE ---
+                                    onDateClick={handleCalendarDateClick}
                                 />
                             ))}
                         </div>

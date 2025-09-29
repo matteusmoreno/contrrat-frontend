@@ -19,7 +19,7 @@
     transform: translateY(-2px);
 }
 
-/* Novo Estilo Outline */
+/* Estilo Outline */
 .outline {
     background-color: transparent;
     color: var(--cor-primaria);
@@ -30,4 +30,16 @@
     background-color: var(--cor-primaria);
     color: var(--texto-primario);
     transform: translateY(-2px);
+}
+
+/* --- NOVO ESTILO ADICIONADO --- */
+.danger {
+    background-color: transparent;
+    color: #ef4444;
+    border: 2px solid #ef4444;
+}
+
+.danger:hover {
+    background-color: #ef4444;
+    color: var(--texto-primario);
 }
