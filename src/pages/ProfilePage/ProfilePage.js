@@ -11,11 +11,11 @@ import Modal from '../../components/Modal/Modal';
 import Button from '../../components/Button/Button';
 import InputField from '../../components/InputField/InputField';
 import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput';
-import TextareaField from '../../components/TextareaField/TextareaField';
+// A importação do TextareaField foi removida
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Perfil";
 
-const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para ProfilePage
+const ProfilePage = () => {
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
 
@@ -55,6 +55,16 @@ const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para Prof
                     ]);
 
                     const data = profileResponse.data;
+                    const fetchedFields = fieldsResponse.data;
+
+                    let artisticFieldEnumName = '';
+                    if (isArtist && data.artisticField) {
+                        const field = fetchedFields.find(f => f.displayName === data.artisticField);
+                        if (field) {
+                            artisticFieldEnumName = field.name;
+                        }
+                    }
+
                     const initialFormData = {
                         id: data.id,
                         name: data.name,
@@ -62,7 +72,7 @@ const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para Prof
                         phoneNumber: data.phoneNumber,
                         birthDate: data.birthDate.split('T')[0],
                         description: data.description || '',
-                        artisticField: data.artisticField,
+                        artisticField: artisticFieldEnumName, // Armazena o 'name' (enum)
                         cep: data.address.zipCode,
                         number: data.address.number,
                         complement: data.address.complement || '',
@@ -81,7 +91,7 @@ const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para Prof
                     });
 
                     if (isArtist) {
-                        setArtisticFieldOptions(fieldsResponse.data);
+                        setArtisticFieldOptions(fetchedFields);
                     }
 
                 } catch (err) {
@@ -173,6 +183,8 @@ const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para Prof
             }
 
             const data = response.data;
+            const artisticFieldEnumName = artisticFieldOptions.find(f => f.displayName === data.artisticField)?.name || '';
+
             const newInitialData = {
                 id: data.id,
                 name: data.name,
@@ -180,7 +192,7 @@ const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para Prof
                 phoneNumber: data.phoneNumber,
                 birthDate: data.birthDate.split('T')[0],
                 description: data.description || '',
-                artisticField: data.artisticField,
+                artisticField: artisticFieldEnumName,
                 cep: data.address.zipCode,
                 number: data.address.number,
                 complement: data.address.complement || '',
@@ -302,8 +314,15 @@ const ProfilePage = () => { // CORREÇÃO: Nome do componente alterado para Prof
                             <h2>Sobre sua Arte</h2>
                             <div className={styles.grid}>
                                 <AutocompleteInput label="Área de Atuação" options={artisticFieldOptions} onSelect={handleArtisticFieldSelect} initialValue={initialData.artisticField} required />
-                                <div className={styles.fullWidth}>
-                                    <TextareaField id="description" name="description" label="Descrição / Biografia" value={formData.description} onChange={handleChange} rows={5} />
+                                <div className={`${styles.fullWidth} ${styles.inputGroup}`}>
+                                    <label htmlFor="description">Descrição / Biografia</label>
+                                    <textarea
+                                        id="description"
+                                        name="description"
+                                        className={styles.descriptionTextarea}
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                    />
                                 </div>
                             </div>
                         </div>

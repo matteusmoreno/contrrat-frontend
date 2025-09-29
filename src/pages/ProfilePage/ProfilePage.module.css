@@ -96,7 +96,6 @@
     color: var(--cor-primaria);
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--cor-borda);
 }
 
 .grid {
@@ -109,6 +108,31 @@
     grid-column: 1 / -1;
     /* Ocupa a largura total da grade */
 }
+
+/* --- NOVO ESTILO PARA O CAMPO DE DESCRIÇÃO --- */
+.descriptionTextarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo);
+    color: var(--texto-primario);
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 150px;
+    /* Altura maior para o texto */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.descriptionTextarea:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 2px rgba(199, 56, 74, 0.2);
+}
+
+/* --- FIM DO NOVO ESTILO --- */
+
 
 .formActions {
     display: flex;

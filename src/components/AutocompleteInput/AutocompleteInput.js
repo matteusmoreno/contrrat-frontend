@@ -2,11 +2,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './AutocompleteInput.module.css';
 
-const AutocompleteInput = ({ label, options, onSelect, required }) => {
+const AutocompleteInput = ({ label, options, onSelect, required, initialValue }) => {
     const [inputValue, setInputValue] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [isListVisible, setIsListVisible] = useState(false);
     const wrapperRef = useRef(null);
+
+    // Efeito para preencher o campo com o valor inicial quando os dados carregam
+    useEffect(() => {
+        if (initialValue && options.length > 0) {
+            const selectedOption = options.find(option => option.name === initialValue || option.displayName === initialValue);
+            if (selectedOption) {
+                setInputValue(selectedOption.displayName);
+            }
+        }
+    }, [initialValue, options]);
+
 
     // Efeito para fechar a lista ao clicar fora do componente
     useEffect(() => {
