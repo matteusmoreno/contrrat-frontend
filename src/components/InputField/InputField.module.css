@@ -2,6 +2,7 @@
 .inputGroup {
     margin-bottom: 1.5rem;
     width: 100%;
+    position: relative;
 }
 
 .inputGroup label {
@@ -26,4 +27,16 @@
     outline: none;
     border-color: var(--cor-primaria);
     box-shadow: 0 0 0 2px rgba(199, 56, 74, 0.2);
+}
+
+.inputError {
+    border-color: #ff8a8a !important;
+}
+
+.errorMessage {
+    color: #ff8a8a;
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: -1.2rem;
+    left: 0;
 }

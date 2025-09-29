@@ -10,45 +10,42 @@ import InputField from '../../components/InputField/InputField';
 import Modal from '../../components/Modal/Modal';
 import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput';
 import ProfileTypeSelection from '../../components/ProfileTypeSelection/ProfileTypeSelection';
+import PasswordStrengthBar from 'react-password-strength-bar';
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Foto+de+Perfil";
 
 const RegisterPage = () => {
-    const [step, setStep] = useState('SELECT_TYPE');
+    const [view, setView] = useState('SELECT_TYPE');
     const [profileType, setProfileType] = useState('');
+    const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
-        name: '',
-        birthDate: '',
-        phoneNumber: '',
-        email: '',
-        password: '',
-        cep: '',
-        number: '',
-        complement: '',
-        description: '',
+        name: '', birthDate: '', phoneNumber: '', email: '', password: '',
+        cep: '', number: '', complement: '', description: '', artisticField: '',
         profilePictureUrl: '',
-        artisticField: '',
+    });
+    const [confirmations, setConfirmations] = useState({
+        confirmEmail: '', confirmPassword: ''
     });
     const [displayValues, setDisplayValues] = useState({
-        birthDate: '',
-        phoneNumber: '',
-        cep: '',
+        birthDate: '', phoneNumber: '', cep: '',
     });
     const [artisticFieldOptions, setArtisticFieldOptions] = useState([]);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [errors, setErrors] = useState({});
+    const [apiError, setApiError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
+    // --- Estados para a imagem ---
     const [imgSrc, setImgSrc] = useState('');
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState(null);
     const [isCropperOpen, setIsCropperOpen] = useState(false);
     const [croppedBlob, setCroppedBlob] = useState(null);
-
-
     const fileInputRef = useRef(null);
     const imgRef = useRef(null);
+    // --- Fim dos estados da imagem ---
+
+    const totalSteps = profileType === 'ARTIST' ? 4 : 3;
 
     useEffect(() => {
         if (profileType === 'ARTIST') {
@@ -66,20 +63,29 @@ const RegisterPage = () => {
 
     const handleSelectType = (type) => {
         setProfileType(type);
-        setStep('FILL_FORM');
+        setView('FILL_FORM');
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        setErrors(prev => ({ ...prev, [name]: undefined }));
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleConfirmationChange = (e) => {
+        const { name, value } = e.target;
+        setErrors(prev => ({ ...prev, [name]: undefined }));
+        setConfirmations(prev => ({ ...prev, [name]: value }));
+    }
+
     const handleArtisticFieldSelect = (option) => {
+        setErrors(prev => ({ ...prev, artisticField: undefined }));
         setFormData(prev => ({ ...prev, artisticField: option.name }));
     };
 
     const handleMaskedChange = (e) => {
         const { name, value } = e.target;
+        setErrors(prev => ({ ...prev, [name]: undefined }));
         const rawValue = value.replace(/\D/g, '');
         let maskedValue = value;
 
@@ -104,10 +110,8 @@ const RegisterPage = () => {
         setDisplayValues(prev => ({ ...prev, [name]: maskedValue }));
     };
 
-
-    const handleImageClick = () => {
-        fileInputRef.current.click();
-    };
+    // --- Funções de Imagem ---
+    const handleImageClick = () => fileInputRef.current.click();
 
     const onSelectFile = (e) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -125,19 +129,12 @@ const RegisterPage = () => {
 
     const onImageLoad = (e) => {
         const { width, height } = e.currentTarget;
-        const initialCrop = centerCrop(
-            makeAspectCrop({ unit: '%', width: 90 }, 1, width, height),
-            width,
-            height
-        );
+        const initialCrop = centerCrop(makeAspectCrop({ unit: '%', width: 90 }, 1, width, height), width, height);
         setCrop(initialCrop);
     };
 
     const handleCropConfirm = () => {
-        if (!completedCrop || !imgRef.current) {
-            setError("Área de corte inválida.");
-            return;
-        }
+        if (!completedCrop || !imgRef.current) return;
 
         const canvas = document.createElement('canvas');
         const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
@@ -145,29 +142,61 @@ const RegisterPage = () => {
         canvas.width = completedCrop.width * scaleX;
         canvas.height = completedCrop.height * scaleY;
         const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
-            imgRef.current,
-            completedCrop.x * scaleX, completedCrop.y * scaleY,
-            completedCrop.width * scaleX, completedCrop.height * scaleY,
-            0, 0, canvas.width, canvas.height
-        );
+        ctx.drawImage(imgRef.current, completedCrop.x * scaleX, completedCrop.y * scaleY, completedCrop.width * scaleX, completedCrop.height * scaleY, 0, 0, canvas.width, canvas.height);
 
         canvas.toBlob((blob) => {
-            if (!blob) {
-                setError("Não foi possível processar a imagem.");
-                return;
-            }
+            if (!blob) return;
             setCroppedBlob(blob);
-            setImgSrc(URL.createObjectURL(blob));
+            setImgSrc(URL.createObjectURL(blob)); // Atualiza a preview
             setIsCropperOpen(false);
         }, 'image/jpeg');
     };
+    // --- Fim das Funções de Imagem ---
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+    const validateStep = () => {
+        const newErrors = {};
+        if (step === 1) {
+            if (!formData.name) newErrors.name = 'Nome é obrigatório.';
+            if (!formData.birthDate) newErrors.birthDate = 'Data de nascimento é obrigatória.';
+            if (!formData.phoneNumber) newErrors.phoneNumber = 'Telefone é obrigatório.';
+        }
+        if (step === 2) {
+            if (!formData.email) newErrors.email = 'Email é obrigatório.';
+            if (formData.email !== confirmations.confirmEmail) newErrors.confirmEmail = 'Os emails não coincidem.';
+            if (!formData.password) newErrors.password = 'Senha é obrigatória.';
+            if (formData.password.length < 6) newErrors.password = 'A senha deve ter no mínimo 6 caracteres.';
+            if (formData.password !== confirmations.confirmPassword) newErrors.confirmPassword = 'As senhas não coincidem.';
+        }
+        if (step === 3 && profileType === 'ARTIST') {
+            if (!formData.artisticField) newErrors.artisticField = 'Área de atuação é obrigatória.';
+        }
+        const addressStep = profileType === 'ARTIST' ? 4 : 3;
+        if (step === addressStep) {
+            if (!formData.cep) newErrors.cep = 'CEP é obrigatório.';
+            if (!formData.number) newErrors.number = 'Número é obrigatório.';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleNext = () => {
+        if (validateStep()) {
+            if (step < totalSteps) {
+                setStep(step + 1);
+            } else {
+                handleSubmit();
+            }
+        }
+    };
+
+    const handlePrevious = () => {
+        setApiError('');
+        setStep(step - 1);
+    };
+
+    const handleSubmit = async () => {
+        if (!validateStep()) return;
+        setApiError('');
         setIsSubmitting(true);
 
         let finalFormData = { ...formData };
@@ -183,18 +212,16 @@ const RegisterPage = () => {
             } else {
                 await createCustomer(finalFormData);
             }
-
-            setSuccess('Cadastro realizado com sucesso! Você será redirecionado para o login.');
-            setTimeout(() => navigate('/login'), 2000);
+            navigate('/login', { state: { successMessage: 'Cadastro realizado com sucesso! Faça o login.' } });
         } catch (err) {
             const errorMessage = err.response?.data || 'Erro ao realizar o cadastro. Verifique seus dados.';
-            setError(errorMessage);
+            setApiError(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    if (step === 'SELECT_TYPE') {
+    if (view === 'SELECT_TYPE') {
         return <ProfileTypeSelection onSelectType={handleSelectType} />;
     }
 
@@ -213,67 +240,95 @@ const RegisterPage = () => {
             </Modal>
 
             <div className={styles.registerContainer}>
-                <form className={styles.registerForm} onSubmit={handleSubmit}>
+                <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={onSelectFile} accept="image/png, image/jpeg" />
+
+                <div className={styles.registerForm}>
                     <div className={styles.formHeader}>
                         <h2>Crie sua Conta de {profileType === 'ARTIST' ? 'Artista' : 'Contratante'}</h2>
+                        <p>Passo {step} de {totalSteps}</p>
                     </div>
 
-                    <div className={styles.profileImageContainer} onClick={handleImageClick}>
-                        <img src={imgSrc || placeholderImage} alt="Foto de Perfil" className={styles.profileImagePreview} />
-                        <div className={styles.imageOverlay}>
-                            <span>&#128247;</span>
-                            <span>Adicionar Foto</span>
-                        </div>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            onChange={onSelectFile}
-                            accept="image/png, image/jpeg"
-                        />
+                    <div className={styles.progressBar}>
+                        {Array.from({ length: totalSteps }, (_, i) => i + 1).map(s => (
+                            <React.Fragment key={s}>
+                                <div className={`${styles.progressStep} ${step >= s ? styles.active : ''}`}>{s}</div>
+                                {s < totalSteps && <div className={`${styles.progressConnector} ${step > s ? styles.active : ''}`}></div>}
+                            </React.Fragment>
+                        ))}
                     </div>
 
-                    <InputField id="name" name="name" label="Nome Completo" value={formData.name} onChange={handleChange} required />
-                    <InputField id="email" name="email" label="Email" type="email" value={formData.email} onChange={handleChange} required />
-                    <InputField id="password" name="password" label="Senha" type="password" value={formData.password} onChange={handleChange} required />
-                    <InputField id="birthDate" name="birthDate" label="Data de Nascimento" type="text" value={displayValues.birthDate} onChange={handleMaskedChange} required maxLength="10" placeholder="dd/mm/aaaa" />
-                    <InputField id="phoneNumber" name="phoneNumber" label="Telefone" value={displayValues.phoneNumber} onChange={handleMaskedChange} required maxLength="15" placeholder="(xx) xxxxx-xxxx" />
+                    {apiError && <p className={styles.error}>{apiError}</p>}
 
-                    {profileType === 'ARTIST' && (
-                        <>
-                            <AutocompleteInput
-                                label="Área de Atuação"
-                                options={artisticFieldOptions}
-                                onSelect={handleArtisticFieldSelect}
-                                required
-                            />
-                            <InputField id="description" name="description" label="Descrição (Fale sobre sua arte)" value={formData.description} onChange={handleChange} />
-                        </>
-                    )}
+                    <div className={styles.stepContent}>
+                        {step === 1 && (
+                            <>
+                                <h3 className={styles.stepTitle}>Informações Pessoais</h3>
+                                <div className={styles.profileImageContainer} onClick={handleImageClick}>
+                                    <img src={imgSrc || placeholderImage} alt="Foto de Perfil" className={styles.profileImagePreview} />
+                                    <div className={styles.imageOverlay}>
+                                        <span>&#128247;</span>
+                                        <span>Adicionar Foto</span>
+                                    </div>
+                                </div>
+                                <InputField name="name" label="Nome Completo" value={formData.name} onChange={handleChange} error={errors.name} required />
+                                <InputField name="birthDate" label="Data de Nascimento" value={displayValues.birthDate} onChange={handleMaskedChange} error={errors.birthDate} required maxLength="10" placeholder="dd/mm/aaaa" />
+                                <InputField name="phoneNumber" label="Telefone" value={displayValues.phoneNumber} onChange={handleMaskedChange} error={errors.phoneNumber} required maxLength="15" placeholder="(xx) xxxxx-xxxx" />
+                            </>
+                        )}
 
-                    <div className={styles.formSection}>
-                        <h3>Endereço</h3>
-                        <InputField id="cep" name="cep" label="CEP" value={displayValues.cep} onChange={handleMaskedChange} required maxLength="9" placeholder="xxxxx-xxx" />
-                        <InputField id="number" name="number" label="Número" value={formData.number} onChange={handleChange} required />
-                        <InputField id="complement" name="complement" label="Complemento (Opcional)" value={formData.complement} onChange={handleChange} />
+                        {step === 2 && (
+                            <>
+                                <h3 className={styles.stepTitle}>Informações de Acesso</h3>
+                                <InputField name="email" label="Email" type="email" value={formData.email} onChange={handleChange} error={errors.email} required />
+                                <InputField name="confirmEmail" label="Confirme seu Email" type="email" value={confirmations.confirmEmail} onChange={handleConfirmationChange} error={errors.confirmEmail} required />
+                                <InputField name="password" label="Senha" type="password" value={formData.password} onChange={handleChange} error={errors.password} required />
+                                <PasswordStrengthBar password={formData.password} className={styles.passwordStrengthBar} />
+                                <InputField name="confirmPassword" label="Confirme sua Senha" type="password" value={confirmations.confirmPassword} onChange={handleConfirmationChange} error={errors.confirmPassword} required />
+                            </>
+                        )}
+
+                        {step === 3 && profileType === 'ARTIST' && (
+                            <>
+                                <h3 className={styles.stepTitle}>Sobre sua Arte</h3>
+                                <AutocompleteInput label="Área de Atuação" options={artisticFieldOptions} onSelect={handleArtisticFieldSelect} />
+                                {errors.artisticField && <p className={styles.error} style={{ textAlign: 'left', marginTop: '-1rem', marginBottom: '1rem' }}>{errors.artisticField}</p>}
+                                <div className={styles.inputGroup}>
+                                    <label htmlFor="description">Descrição</label>
+                                    <textarea id="description" name="description" className={styles.descriptionTextarea} value={formData.description} onChange={handleChange} placeholder="Fale sobre seu trabalho, sua experiência e o que você oferece." />
+                                </div>
+                            </>
+                        )}
+
+                        {((step === 3 && profileType === 'CUSTOMER') || (step === 4 && profileType === 'ARTIST')) && (
+                            <>
+                                <h3 className={styles.stepTitle}>Endereço</h3>
+                                <InputField name="cep" label="CEP" value={displayValues.cep} onChange={handleMaskedChange} error={errors.cep} required maxLength="9" placeholder="xxxxx-xxx" />
+                                <InputField name="number" label="Número" value={formData.number} onChange={handleChange} error={errors.number} required />
+                                <InputField name="complement" label="Complemento (Opcional)" value={formData.complement} onChange={handleChange} />
+                            </>
+                        )}
                     </div>
-
-                    {error && <p className={styles.error}>{error}</p>}
-                    {success && <p className={styles.success}>{success}</p>}
 
                     <div className={styles.formActions}>
-                        <Button type="button" variant="outline" onClick={() => setStep('SELECT_TYPE')}>
-                            Voltar
-                        </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
+                        {step > 1 ? (
+                            <Button type="button" variant="outline" onClick={handlePrevious}>
+                                Voltar
+                            </Button>
+                        ) : (
+                            <Button type="button" variant="outline" onClick={() => setView('SELECT_TYPE')}>
+                                Mudar Perfil
+                            </Button>
+                        )}
+
+                        <Button type="button" onClick={handleNext} disabled={isSubmitting}>
+                            {step === totalSteps ? (isSubmitting ? 'Finalizando...' : 'Finalizar Cadastro') : 'Avançar'}
                         </Button>
                     </div>
 
                     <p className={styles.formFooter}>
                         Já tem uma conta? <Link to="/login">Faça login</Link>
                     </p>
-                </form>
+                </div>
             </div>
         </>
     );
