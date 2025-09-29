@@ -11,8 +11,9 @@ import ArtistsPage from './pages/ArtistsPage/ArtistsPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ArtistDashboardPage from './pages/ArtistDashboardPage/ArtistDashboardPage';
-import CustomerDashboardPage from './pages/CustomerDashboardPage/CustomerDashboardPage'; // Importa a nova página
+import CustomerDashboardPage from './pages/CustomerDashboardPage/CustomerDashboardPage';
 import MinhaAgendaPage from './pages/MinhaAgendaPage/MinhaAgendaPage';
+import CustomerDetailsPage from './pages/CustomerDetailsPage/CustomerDetailsPage'; // Importa a nova página
 import './App.css';
 
 function App() {
@@ -28,12 +29,13 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/artistas" element={<ArtistsPage />} />
             <Route path="/artistas/:id" element={<ArtistDetailsPage />} />
+            {/* **NOVA ROTA ADICIONADA** */}
+            <Route path="/clientes/:id" element={<CustomerDetailsPage />} />
 
             {/* Rotas Protegidas */}
             <Route element={<ProtectedRoute />}>
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/dashboard/artista" element={<ArtistDashboardPage />} />
-              {/* **NOVA ROTA ADICIONADA** */}
               <Route path="/dashboard/cliente" element={<CustomerDashboardPage />} />
               <Route path="/minha-agenda" element={<MinhaAgendaPage />} />
             </Route>

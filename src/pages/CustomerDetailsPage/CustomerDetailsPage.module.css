@@ -1,0 +1,122 @@
+/* src/pages/CustomerDetailsPage/CustomerDetailsPage.module.css */
+
+.pageLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    padding-top: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.detailsContainer {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.profileImage {
+    width: 250px;
+    height: 250px;
+    border-radius: 12px;
+    object-fit: cover;
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    flex-shrink: 0;
+}
+
+.infoSection {
+    flex: 1;
+}
+
+.name {
+    font-size: 2.5rem;
+    color: var(--texto-primario);
+    margin-bottom: 0.25rem;
+}
+
+.profileType {
+    font-size: 1.2rem;
+    color: var(--cor-primaria);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+
+.location {
+    font-size: 1.1rem;
+    color: var(--texto-secundario);
+    margin-bottom: 2rem;
+}
+
+.contactInfo {
+    margin-bottom: 2rem;
+}
+
+.contactInfo h4 {
+    font-size: 1.2rem;
+    color: var(--texto-primario);
+    border-bottom: 2px solid var(--cor-primaria);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.contactInfo p {
+    color: var(--texto-secundario);
+    margin-bottom: 0.5rem;
+}
+
+.memberInfo {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--cor-borda);
+    color: var(--texto-secundario);
+    font-style: italic;
+}
+
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--cor-superficie);
+    border-bottom-color: var(--cor-primaria);
+    border-radius: 50%;
+    display: block;
+    margin: 5rem auto;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.error {
+    text-align: center;
+    padding: 5rem;
+    font-size: 1.2rem;
+    color: #ff8a8a;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+    .detailsContainer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profileImage {
+        width: 200px;
+        height: 200px;
+    }
+
+    .name {
+        font-size: 2rem;
+    }
+}

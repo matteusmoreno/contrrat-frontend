@@ -55,6 +55,12 @@ export const updateCustomer = (customerData) => {
     return api.put('/customers/update', customerData);
 }
 
+// --- FUNÇÃO ADICIONADA ---
+export const getCustomerById = (id) => {
+    return api.get(`/customers/${id}`);
+};
+// --- FIM DA FUNÇÃO ADICIONADA ---
+
 export const getProfile = (profileType, id) => {
     const endpoint = profileType === 'ARTIST' ? `/artists/${id}` : `/customers/${id}`;
     return api.get(endpoint);
@@ -116,11 +122,9 @@ export const createAvailability = (availabilityData) => {
     return api.post('/availability', availabilityData);
 };
 
-// --- FUNÇÃO ADICIONADA ---
 export const getAvailabilityById = (id) => {
     return api.get(`/availability/${id}`);
 };
-// --- FIM DA FUNÇÃO ADICIONADA ---
 
 export const getAllAvailabilityByArtistId = (artistId) => {
     return api.get(`/availability/get-all-by-artist/${artistId}?size=1000`); // Aumentado para buscar mais
