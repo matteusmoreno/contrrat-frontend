@@ -4,7 +4,8 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Button/Button';
-import { FaTachometerAlt, FaUserEdit, FaCalendarAlt, FaSignOutAlt } from 'react-icons/fa';
+// 1. Importar o novo ícone
+import { FaTachometerAlt, FaUserEdit, FaCalendarAlt, FaSignOutAlt, FaFileContract } from 'react-icons/fa';
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Perfil";
 
@@ -43,7 +44,6 @@ const Navbar = () => {
                     alt="Foto de perfil"
                     className={styles.profilePicture}
                 />
-                {/* --- ALTERAÇÃO AQUI --- */}
                 <span className={styles.profileName}>
                     Olá, <span>{user.name.split(' ')[0]}</span>
                 </span>
@@ -61,6 +61,10 @@ const Navbar = () => {
                             <FaCalendarAlt /> Minha Agenda
                         </Link>
                     )}
+                    {/* 2. Adicionar o novo link para a página de contratos */}
+                    <Link to="/meus-contratos" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
+                        <FaFileContract /> Meus Contratos
+                    </Link>
                     <button onClick={handleLogout} className={styles.logoutButton}>
                         <FaSignOutAlt /> Sair
                     </button>
