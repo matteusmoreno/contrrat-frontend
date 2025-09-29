@@ -1,0 +1,25 @@
+/* src/components/ConfirmationModal/ConfirmationModal.module.css */
+.container {
+    padding: 1.5rem;
+    text-align: center;
+    max-width: 400px;
+}
+
+.title {
+    font-size: 1.5rem;
+    color: var(--texto-primario);
+    margin-bottom: 1rem;
+}
+
+.message {
+    font-size: 1rem;
+    color: var(--texto-secundario);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
