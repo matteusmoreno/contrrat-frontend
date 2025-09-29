@@ -3,17 +3,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import styles from './RegisterPage.module.css'; // <<-- CORREÇÃO APLICADA AQUI
+import styles from './RegisterPage.module.css';
 import { createArtist, createCustomer, uploadImage, getArtisticFields } from '../../services/api';
 import Button from '../../components/Button/Button';
 import InputField from '../../components/InputField/InputField';
 import Modal from '../../components/Modal/Modal';
 import AutocompleteInput from '../../components/AutocompleteInput/AutocompleteInput';
+import ProfileTypeSelection from '../../components/ProfileTypeSelection/ProfileTypeSelection';
 
 const placeholderImage = "https://via.placeholder.com/150x150.png/1E1E1E/EAEAEA?text=Foto+de+Perfil";
 
 const RegisterPage = () => {
-    const [profileType, setProfileType] = useState('CUSTOMER');
+    const [step, setStep] = useState('SELECT_TYPE');
+    const [profileType, setProfileType] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         birthDate: '',
@@ -49,16 +51,23 @@ const RegisterPage = () => {
     const imgRef = useRef(null);
 
     useEffect(() => {
-        const fetchFields = async () => {
-            try {
-                const response = await getArtisticFields();
-                setArtisticFieldOptions(response.data);
-            } catch (error) {
-                console.error("Erro ao buscar áreas de atuação:", error);
-            }
-        };
-        fetchFields();
-    }, []);
+        if (profileType === 'ARTIST') {
+            const fetchFields = async () => {
+                try {
+                    const response = await getArtisticFields();
+                    setArtisticFieldOptions(response.data);
+                } catch (error) {
+                    console.error("Erro ao buscar áreas de atuação:", error);
+                }
+            };
+            fetchFields();
+        }
+    }, [profileType]);
+
+    const handleSelectType = (type) => {
+        setProfileType(type);
+        setStep('FILL_FORM');
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -185,6 +194,10 @@ const RegisterPage = () => {
         }
     };
 
+    if (step === 'SELECT_TYPE') {
+        return <ProfileTypeSelection onSelectType={handleSelectType} />;
+    }
+
     return (
         <>
             <Modal isOpen={isCropperOpen} onClose={() => setIsCropperOpen(false)}>
@@ -201,7 +214,9 @@ const RegisterPage = () => {
 
             <div className={styles.registerContainer}>
                 <form className={styles.registerForm} onSubmit={handleSubmit}>
-                    <h2>Crie sua Conta</h2>
+                    <div className={styles.formHeader}>
+                        <h2>Crie sua Conta de {profileType === 'ARTIST' ? 'Artista' : 'Contratante'}</h2>
+                    </div>
 
                     <div className={styles.profileImageContainer} onClick={handleImageClick}>
                         <img src={imgSrc || placeholderImage} alt="Foto de Perfil" className={styles.profileImagePreview} />
@@ -216,15 +231,6 @@ const RegisterPage = () => {
                             onChange={onSelectFile}
                             accept="image/png, image/jpeg"
                         />
-                    </div>
-
-                    <div className={styles.toggleContainer}>
-                        <button type="button" className={`${styles.toggleButton} ${profileType === 'CUSTOMER' ? styles.active : ''}`} onClick={() => setProfileType('CUSTOMER')}>
-                            Sou Contratante
-                        </button>
-                        <button type="button" className={`${styles.toggleButton} ${profileType === 'ARTIST' ? styles.active : ''}`} onClick={() => setProfileType('ARTIST')}>
-                            Sou Artista
-                        </button>
                     </div>
 
                     <InputField id="name" name="name" label="Nome Completo" value={formData.name} onChange={handleChange} required />
@@ -255,9 +261,14 @@ const RegisterPage = () => {
                     {error && <p className={styles.error}>{error}</p>}
                     {success && <p className={styles.success}>{success}</p>}
 
-                    <Button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
-                    </Button>
+                    <div className={styles.formActions}>
+                        <Button type="button" variant="outline" onClick={() => setStep('SELECT_TYPE')}>
+                            Voltar
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
+                        </Button>
+                    </div>
 
                     <p className={styles.formFooter}>
                         Já tem uma conta? <Link to="/login">Faça login</Link>

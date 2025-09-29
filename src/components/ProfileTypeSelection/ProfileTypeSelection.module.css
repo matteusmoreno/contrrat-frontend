@@ -1,0 +1,73 @@
+/* src/components/ProfileTypeSelection/ProfileTypeSelection.module.css */
+.selectionContainer {
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 2.5rem;
+    text-align: center;
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+}
+
+.selectionContainer h2 {
+    font-size: 2.5rem;
+    color: var(--texto-primario);
+    margin-bottom: 0.5rem;
+}
+
+.selectionContainer>p {
+    font-size: 1.1rem;
+    color: var(--texto-secundario);
+    margin-bottom: 3rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.optionsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.optionCard {
+    background-color: var(--cor-fundo);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--cor-borda);
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.optionCard:hover {
+    transform: translateY(-5px);
+    border-color: var(--cor-primaria);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.icon {
+    font-size: 3rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1.5rem;
+}
+
+.optionCard h3 {
+    font-size: 1.5rem;
+    color: var(--texto-primario);
+    margin-bottom: 0.75rem;
+}
+
+.optionCard p {
+    color: var(--texto-secundario);
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .optionsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .selectionContainer {
+        padding: 2rem 1.5rem;
+    }
+}
