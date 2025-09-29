@@ -244,10 +244,8 @@ const ArtistDashboardPage = () => {
             }
             try {
                 const imageUrl = await uploadImage(blob);
-                // --- INÍCIO DA CORREÇÃO ---
                 const profileType = user.authorities === 'ROLE_ARTIST' ? 'ARTIST' : 'CUSTOMER';
                 await updateProfilePicture(profileType, imageUrl);
-                // --- FIM DA CORREÇÃO ---
                 setProfileData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
             } catch (err) {
                 console.error("Erro no upload:", err);
@@ -264,9 +262,7 @@ const ArtistDashboardPage = () => {
         return <div className={styles.container}><p>Carregando dashboard...</p></div>;
     }
 
-    // --- INÍCIO DA CORREÇÃO ---
     if (!user || user.authorities !== 'ROLE_ARTIST') {
-        // --- FIM DA CORREÇÃO ---
         return <div className={styles.container}><p>Acesso negado. Esta página é apenas para artistas.</p></div>;
     }
 
@@ -321,6 +317,7 @@ const ArtistDashboardPage = () => {
                         profileData={profileData}
                         onImageClick={handleImageClick}
                         isUploading={uploading}
+                        onUpdate={fetchArtistData} /* --- PROP ADICIONADA --- */
                     />
                 </aside>
 

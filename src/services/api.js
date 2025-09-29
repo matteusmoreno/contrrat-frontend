@@ -55,16 +55,20 @@ export const updateCustomer = (customerData) => {
     return api.put('/customers/update', customerData);
 }
 
-// --- FUNÇÃO ADICIONADA ---
 export const getCustomerById = (id) => {
     return api.get(`/customers/${id}`);
 };
-// --- FIM DA FUNÇÃO ADICIONADA ---
 
 export const getProfile = (profileType, id) => {
     const endpoint = profileType === 'ARTIST' ? `/artists/${id}` : `/customers/${id}`;
     return api.get(endpoint);
 };
+
+// --- FUNÇÃO ADICIONADA ---
+export const upgradeToPremium = (artistId) => {
+    return api.patch(`/artists/promote/${artistId}`);
+};
+// --- FIM DA FUNÇÃO ADICIONADA ---
 
 export const getContractsForCustomer = () => {
     return api.get('/contracts/my-contracts-as-customer?size=100');
