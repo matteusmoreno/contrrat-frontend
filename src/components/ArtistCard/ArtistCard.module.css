@@ -8,7 +8,11 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    /* --- CORREÇÃO DEFINITIVA --- */
+    width: 100%;
+    /* Garante que o card ocupe a largura do link */
+    flex-grow: 1;
+    /* Faz o card expandir para preencher a altura do link */
 }
 
 .card:hover {
@@ -22,18 +26,21 @@
 }
 
 .imageContainer {
-    /* Novo container para a imagem e o selo */
     position: relative;
+    width: 100%;
+    height: 200px;
+    flex-shrink: 0;
+    /* Impede que o container da imagem encolha */
+    background-color: var(--cor-borda);
 }
 
 .cardImage {
     width: 100%;
-    height: 200px;
+    height: 100%;
     object-fit: cover;
-    background-color: var(--cor-borda);
+    display: block;
 }
 
-/* --- NOVO ESTILO PARA O SELO PREMIUM --- */
 .premiumBadge {
     position: absolute;
     top: 1rem;

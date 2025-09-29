@@ -1,5 +1,5 @@
 // src/pages/HomePage/HomePage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Adicionado useRef
 import { Link } from 'react-router-dom';
 import styles from './HomePage.module.css';
 import ArtistCard from '../../components/ArtistCard/ArtistCard';
@@ -35,8 +35,12 @@ const HomePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // --- LÓGICA DO CARROSSEL ---
+    const carouselRef = useRef();
+    const [width, setWidth] = useState(0);
+
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchAndMeasure = async () => {
             setLoading(true);
             setError(null);
             try {
@@ -45,7 +49,7 @@ const HomePage = () => {
                     getArtisticFields()
                 ]);
 
-                setArtists(artistsResponse.data.content?.slice(0, 4) || []);
+                setArtists(artistsResponse.data.content?.slice(0, 8) || []); // Pegar mais artistas para o carrossel
 
                 const categoryIcons = {
                     BANDA: <FaMusic />, CANTOR: <FaMusic />, DJ: <FaMusic />,
@@ -72,8 +76,18 @@ const HomePage = () => {
             }
         };
 
-        fetchData();
+        fetchAndMeasure();
     }, []);
+
+    // Efeito para calcular a largura do carrossel
+    useEffect(() => {
+        if (carouselRef.current) {
+            const trackScrollWidth = carouselRef.current.scrollWidth;
+            const carouselOffsetWidth = carouselRef.current.offsetWidth;
+            setWidth(trackScrollWidth - carouselOffsetWidth);
+        }
+    }, [artists]); // Recalcula quando os artistas são carregados
+
 
     const renderArtistContent = () => {
         if (loading) return <div className={styles.loader}></div>;
@@ -81,21 +95,25 @@ const HomePage = () => {
         if (artists.length === 0) return <p className={styles.message}>Nenhum artista em destaque no momento.</p>;
 
         return (
-            <div className={styles.artistsGrid}>
-                {artists.map((artist, index) => (
-                    <motion.div
-                        key={artist.id}
-                        initial={{ opacity: 0, y: 50 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                    >
-                        <Link to={`/artistas/${artist.id}`} className={styles.cardLink}>
-                            <ArtistCard artist={artist} isFeatured={artist.premium} />
-                        </Link>
-                    </motion.div>
-                ))}
-            </div>
+            // Contêiner do carrossel (viewport)
+            <motion.div className={styles.carouselContainer}>
+                {/* Trilha arrastável do carrossel */}
+                <motion.div
+                    ref={carouselRef}
+                    className={styles.artistsGrid}
+                    drag="x"
+                    dragConstraints={{ right: 0, left: -width }}
+                    whileTap={{ cursor: "grabbing" }}
+                >
+                    {artists.map((artist) => (
+                        <motion.div key={artist.id} className={styles.artistCardWrapper}>
+                            <Link to={`/artistas/${artist.id}`} className={styles.cardLink}>
+                                <ArtistCard artist={artist} isFeatured={artist.premium} />
+                            </Link>
+                        </motion.div>
+                    ))}
+                </motion.div>
+            </motion.div>
         );
     };
 

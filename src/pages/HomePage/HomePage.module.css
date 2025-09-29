@@ -163,10 +163,24 @@
     border: 1px solid var(--cor-borda);
 }
 
+/* NOVO: Contêiner do carrossel (viewport) */
+.carouselContainer {
+    overflow: hidden;
+    cursor: grab;
+}
+
+/* ALTERADO: A antiga grid agora é a trilha flexível e arrastável */
 .artistsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    display: flex;
     gap: 2rem;
+    width: max-content;
+    /* Permite que a trilha seja maior que a tela */
+}
+
+/* NOVO: Wrapper para cada card para definir sua largura no carrossel */
+.artistCardWrapper {
+    width: 300px;
+    flex-shrink: 0;
 }
 
 .cardLink {
@@ -174,6 +188,7 @@
     color: inherit;
     display: flex;
     height: 100%;
+    width: 100%;
 }
 
 .viewAll {
