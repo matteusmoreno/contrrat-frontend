@@ -5,6 +5,7 @@ import Button from '../Button/Button';
 import PriceInput from '../PriceInput/PriceInput';
 import styles from './AvailabilityModal.module.css';
 import { createAvailability, updateAvailability, deleteAvailability } from '../../services/api';
+import { FaToggleOff, FaToggleOn, FaDollarSign } from 'react-icons/fa';
 
 const formatAsLocalDateTime = (date) => {
     const year = date.getFullYear();
@@ -23,6 +24,8 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
     const [currentAvailabilities, setCurrentAvailabilities] = useState({});
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [basePrice, setBasePrice] = useState('');
+
 
     const initializeStates = useCallback(() => {
         const initial = {};
@@ -40,6 +43,7 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
         });
         setInitialAvailabilities(JSON.parse(JSON.stringify(initial)));
         setCurrentAvailabilities(JSON.parse(JSON.stringify(initial)));
+        setBasePrice('');
     }, [existingAvailabilities]);
 
     useEffect(() => {
@@ -77,6 +81,42 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
         }));
     };
 
+    const handleMakeAllUnavailable = () => {
+        const newAvailabilities = { ...currentAvailabilities };
+        for (let hour = 0; hour < 24; hour++) {
+            const slotDateTime = new Date(date);
+            slotDateTime.setHours(hour, 0, 0, 0);
+            const isPastHour = new Date() > slotDateTime;
+
+            if (newAvailabilities[hour].status !== 'BOOKED' && !isPastHour) {
+                newAvailabilities[hour] = { ...newAvailabilities[hour], status: 'UNAVAILABLE', price: '' };
+            }
+        }
+        setCurrentAvailabilities(newAvailabilities);
+    };
+
+    const handleApplyBasePrice = () => {
+        if (!basePrice || basePrice <= 0) {
+            setError('Por favor, insira um valor base válido.');
+            return;
+        }
+        setError('');
+        const newAvailabilities = { ...currentAvailabilities };
+        // --- INÍCIO DA CORREÇÃO ---
+        for (let hour = 0; hour < 24; hour++) {
+            const slotDateTime = new Date(date);
+            slotDateTime.setHours(hour, 0, 0, 0);
+            const isPastHour = new Date() > slotDateTime;
+
+            // Só aplica o valor se o horário estiver LIVRE (FREE) e não tiver passado
+            if (newAvailabilities[hour].status === 'FREE' && !isPastHour) {
+                newAvailabilities[hour] = { ...newAvailabilities[hour], status: 'AVAILABLE', price: basePrice };
+            }
+        }
+        // --- FIM DA CORREÇÃO ---
+        setCurrentAvailabilities(newAvailabilities);
+    };
+
     const handleSave = async () => {
         setError('');
         setIsSubmitting(true);
@@ -101,11 +141,9 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                 return;
             }
 
-            // Deletar
             if (initial.status !== 'FREE' && current.status === 'FREE') {
                 promises.push(deleteAvailability(initial.id));
             }
-            // Criar
             else if (initial.status === 'FREE' && current.status !== 'FREE') {
                 promises.push(createAvailability({
                     artistId,
@@ -115,7 +153,6 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                     availabilityStatus: current.status
                 }));
             }
-            // Atualizar
             else if (initial.status !== 'FREE' && current.status !== 'FREE') {
                 promises.push(updateAvailability({
                     id: initial.id,
@@ -149,6 +186,23 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                 <h3>Gerenciar Disponibilidade</h3>
                 <p className={styles.dateLabel}>{formattedDate}</p>
 
+                <div className={styles.bulkActions}>
+                    <div className={styles.actionGroup}>
+                        <Button variant="outline" onClick={handleMakeAllUnavailable}>
+                            <FaToggleOff /> Indisponibilizar Dia Todo
+                        </Button>
+                    </div>
+                    <div className={styles.actionGroup}>
+                        <div className={styles.priceInputGroup}>
+                            <FaDollarSign />
+                            <PriceInput value={basePrice} onChange={setBasePrice} />
+                        </div>
+                        <Button onClick={handleApplyBasePrice}>
+                            <FaToggleOn /> Aplicar Valor Base
+                        </Button>
+                    </div>
+                </div>
+
                 <div className={styles.hoursGrid}>
                     {Object.keys(currentAvailabilities).map(hourStr => {
                         const hour = parseInt(hourStr, 10);
@@ -157,7 +211,6 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                         const slotDateTime = new Date(date);
                         slotDateTime.setHours(hour, 0, 0, 0);
 
-                        // Verifica se o slot de horário (a hora cheia) já passou
                         const isPastHour = now > slotDateTime;
 
                         return (
@@ -188,10 +241,10 @@ const HourAvailabilityModal = ({ isOpen, onClose, date, artistId, existingAvaila
                 </div>
                 {error && <p className={styles.error}>{error}</p>}
                 <div className={styles.legend}>
+                    <div className={styles.legendItem}><span className={`${styles.legendColor} ${styles.free}`}></span> Livre</div>
                     <div className={styles.legendItem}><span className={`${styles.legendColor} ${styles.available}`}></span> Disponível</div>
                     <div className={styles.legendItem}><span className={`${styles.legendColor} ${styles.unavailable}`}></span> Indisponível</div>
                     <div className={styles.legendItem}><span className={`${styles.legendColor} ${styles.booked}`}></span> Reservado</div>
-                    <div className={styles.legendItem}><span className={`${styles.legendColor} ${styles.free}`}></span> Livre</div>
                 </div>
                 <div className={styles.buttons}>
                     <Button type="button" onClick={onClose}>Cancelar</Button>

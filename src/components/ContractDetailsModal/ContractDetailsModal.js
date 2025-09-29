@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import styles from './ContractDetailsModal.module.css';
 import Modal from '../Modal/Modal';
 import Button from '../Button/Button';
-import ConfirmationModal from '../ConfirmationModal/ConfirmationModal'; // Importar o modal de confirmação
+import ConfirmationModal from '../ConfirmationModal/ConfirmationModal';
 import { getAvailabilityById, confirmContract, rejectContract, cancelContract } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -13,12 +13,10 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
     const [availabilityDetails, setAvailabilityDetails] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    // Estado para o modal de confirmação
     const [confirmation, setConfirmation] = useState({ isOpen: false, action: null, message: '', title: '' });
 
     const fetchAvailabilityDetails = useCallback(async () => {
         if (!contract?.availabilityIds) return;
-
         setLoading(true);
         setError('');
         try {
@@ -51,8 +49,8 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
             } else if (action === 'cancel') {
                 await cancelContract(contract.id);
             }
-            onAction(); // Atualiza a lista no dashboard
-            onClose();  // Fecha o modal
+            onAction();
+            onClose();
         } catch (err) {
             console.error(`Erro ao ${action} o contrato:`, err);
             setError(err.response?.data || 'Ocorreu um erro ao processar a ação.');
@@ -64,7 +62,6 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
     const openConfirmation = (action) => {
         let title = 'Confirmar Ação';
         let message = '';
-
         if (action === 'confirm') {
             title = 'Aceitar Proposta?';
             message = 'Você confirma o aceite desta proposta? Os horários serão marcados como reservados.';
@@ -73,9 +70,8 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
             message = 'Tem certeza que deseja recusar esta proposta? Os horários voltarão a ficar disponíveis.';
         } else if (action === 'cancel') {
             title = 'Cancelar Contrato?';
-            message = 'Tem certeza que deseja cancelar este contrato? Esta ação não pode ser desfeita.';
+            message = 'Tem certeza que deseja cancelar este contrato? Esta ação não pode ser desfeita e os horários voltarão a ficar disponíveis.';
         }
-
         setConfirmation({ isOpen: true, action, title, message });
     };
 
@@ -151,14 +147,25 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
 
                     {error && <p className={styles.error}>{error}</p>}
 
+                    {/* --- LÓGICA DE EXIBIÇÃO DOS BOTÕES CORRIGIDA --- */}
                     <div className={styles.actions}>
+                        {/* Ações do Artista para propostas pendentes */}
                         {userRole === 'ROLE_ARTIST' && status === 'PENDING_CONFIRMATION' && (
                             <>
                                 <Button onClick={() => openConfirmation('reject')} variant="outline" disabled={loading}>Recusar</Button>
                                 <Button onClick={() => openConfirmation('confirm')} disabled={loading}>Aceitar Proposta</Button>
                             </>
                         )}
-                        {(status === 'PENDING_CONFIRMATION' || status === 'CONFIRMED') && (
+
+                        {/* Ação do Contratante para propostas pendentes */}
+                        {userRole === 'ROLE_CUSTOMER' && status === 'PENDING_CONFIRMATION' && (
+                            <Button onClick={() => openConfirmation('cancel')} variant="danger" disabled={loading}>
+                                Cancelar Proposta
+                            </Button>
+                        )}
+
+                        {/* Ação de Cancelamento para contratos já confirmados (ambos podem cancelar) */}
+                        {status === 'CONFIRMED' && (
                             <Button onClick={() => openConfirmation('cancel')} variant="danger" disabled={loading}>
                                 Cancelar Contrato
                             </Button>
