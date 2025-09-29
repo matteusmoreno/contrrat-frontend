@@ -47,7 +47,7 @@ const MinhaAgendaPage = () => {
         });
     };
 
-    if (user?.scope !== 'ARTIST') {
+    if (user?.authorities !== 'ROLE_ARTIST') {
         return <div className={styles.container}><p>Acesso negado. Esta página é apenas para artistas.</p></div>;
     }
 

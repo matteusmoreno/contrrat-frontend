@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getProfile, getContractsForCustomer, uploadImage, updateProfilePicture } from '../../services/api';
-import styles from './CustomerDashboardPage.module.css'; // <-- CORREÇÃO APLICADA AQUI
+import styles from './CustomerDashboardPage.module.css';
 import { Link } from 'react-router-dom';
 import Button from '../../components/Button/Button';
 import CustomerProfileSummary from '../../components/CustomerProfileSummary/CustomerProfileSummary';
@@ -114,7 +114,10 @@ const CustomerDashboardPage = () => {
             }
             try {
                 const imageUrl = await uploadImage(blob);
-                await updateProfilePicture(user.scope, imageUrl);
+                // --- INÍCIO DA CORREÇÃO ---
+                const profileType = user.authorities === 'ROLE_ARTIST' ? 'ARTIST' : 'CUSTOMER';
+                await updateProfilePicture(profileType, imageUrl);
+                // --- FIM DA CORREÇÃO ---
                 setProfileData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
             } catch (err) {
                 console.error("Erro no upload:", err);
