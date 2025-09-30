@@ -3,16 +3,14 @@ import React, { useState } from 'react';
 import styles from './ContractList.module.css';
 import { Link } from 'react-router-dom';
 import ContractDetailsModal from '../ContractDetailsModal/ContractDetailsModal';
-import { useAuth } from '../../contexts/AuthContext'; // 1. Importar o useAuth
+import { useAuth } from '../../contexts/AuthContext';
 
-const ContractCard = ({ contract, onCardClick, userRole }) => { // 2. Receber userRole como prop
+const ContractCard = ({ contract, onCardClick, userRole }) => {
     const { artist, customer, status, totalPrice, createdAt } = contract;
 
     const formattedDate = new Date(createdAt).toLocaleDateString('pt-BR');
     const formattedPrice = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice);
 
-    // --- LÓGICA DE EXIBIÇÃO CORRIGIDA ---
-    // Se o usuário logado for um artista, mostre o cliente. Senão, mostre o artista.
     const displayProfile = userRole === 'ROLE_ARTIST' ? customer : artist;
     const profileLink = userRole === 'ROLE_ARTIST' ? `/clientes/${customer.id}` : `/artistas/${artist.id}`;
     const profileRole = userRole === 'ROLE_ARTIST' ? 'Contratante' : artist.artisticField;
@@ -38,17 +36,12 @@ const ContractCard = ({ contract, onCardClick, userRole }) => { // 2. Receber us
 };
 
 
-const ContractList = ({ title, contracts, onAction }) => {
+const ContractList = ({ title, contracts, onAction, footer }) => {
     const [selectedContract, setSelectedContract] = useState(null);
-    const { user } = useAuth(); // 3. Obter o usuário logado
+    const { user } = useAuth();
 
-    if (!contracts || contracts.length === 0) {
-        return (
-            <div className={styles.listContainer}>
-                <h3 className={styles.title}>{title}</h3>
-                <p className={styles.emptyMessage}>Nenhum contrato nesta categoria.</p>
-            </div>
-        );
+    if (!contracts) {
+        return null;
     }
 
     const handleAction = () => {
@@ -67,16 +60,21 @@ const ContractList = ({ title, contracts, onAction }) => {
             />
             <div className={styles.listContainer}>
                 <h3 className={styles.title}>{title}</h3>
-                <div className={styles.cardsGrid}>
-                    {contracts.map(contract => (
-                        <ContractCard
-                            key={contract.id}
-                            contract={contract}
-                            onCardClick={setSelectedContract}
-                            userRole={user?.authorities} // 4. Passar a role para o Card
-                        />
-                    ))}
-                </div>
+                {contracts.length === 0 ? (
+                    <p className={styles.emptyMessage}>Nenhum contrato nesta categoria.</p>
+                ) : (
+                    <div className={styles.cardsGrid}>
+                        {contracts.map(contract => (
+                            <ContractCard
+                                key={contract.id}
+                                contract={contract}
+                                onCardClick={setSelectedContract}
+                                userRole={user?.authorities}
+                            />
+                        ))}
+                    </div>
+                )}
+                {footer && <div className={styles.footer}>{footer}</div>}
             </div>
         </>
     );

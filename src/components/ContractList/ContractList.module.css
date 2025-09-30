@@ -117,6 +117,21 @@
     border-radius: 8px;
 }
 
+.footer {
+    text-align: right;
+    margin-top: 1.5rem;
+}
+
+.footer a {
+    color: var(--texto-secundario);
+    text-decoration: underline;
+    font-size: 0.9rem;
+}
+
+.footer a:hover {
+    color: var(--cor-primaria);
+}
+
 @media (max-width: 768px) {
     .card {
         grid-template-columns: 1fr;

@@ -22,7 +22,7 @@ import {
 } from '../../services/api';
 import ContractProposals from '../../components/ContractProposals/ContractProposals';
 import ContractList from '../../components/ContractList/ContractList';
-import HourAvailabilityModal from '../../components/AvailabilityModal/AvailabilityModal'; // 1. Importar o modal
+import HourAvailabilityModal from '../../components/AvailabilityModal/AvailabilityModal';
 
 const formatAsLocalDateTime = (date) => {
     const year = date.getFullYear();
@@ -56,7 +56,6 @@ const ArtistDashboardPage = () => {
     const fileInputRef = useRef(null);
     const imgRef = useRef(null);
 
-    // --- 2. ADICIONAR ESTADOS PARA O MODAL DE AGENDA ---
     const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
 
@@ -121,7 +120,6 @@ const ArtistDashboardPage = () => {
         }
     }, [authLoading, user, fetchArtistData]);
 
-    // --- 3. ADICIONAR FUNÇÕES PARA CONTROLAR O MODAL ---
     const handleCalendarDateClick = (date) => {
         setSelectedDate(date);
         setIsAgendaModalOpen(true);
@@ -130,7 +128,7 @@ const ArtistDashboardPage = () => {
     const handleAgendaModalClose = () => {
         setIsAgendaModalOpen(false);
         setSelectedDate(null);
-        fetchArtistData(); // Re-busca os dados para atualizar a dashboard
+        fetchArtistData();
     };
 
     const getAvailabilitiesForDate = (date) => {
@@ -141,7 +139,6 @@ const ArtistDashboardPage = () => {
         });
     };
 
-    // ... (demais funções handleSave, handleCancel, handleImageClick, etc. permanecem iguais)
     const handleAvailabilitiesChange = (newAvailabilities) => {
         setTodayAvailabilities(newAvailabilities);
         setIsDirty(JSON.stringify(newAvailabilities) !== JSON.stringify(initialTodayAvailabilities));
@@ -280,12 +277,29 @@ const ArtistDashboardPage = () => {
     });
 
     const pendingContracts = contracts.filter(c => c.status === 'PENDING_CONFIRMATION');
-    const confirmedContracts = contracts.filter(c => c.status === 'CONFIRMED');
-    const historyContracts = contracts.filter(c => ['REJECTED', 'CANCELED', 'COMPLETED'].includes(c.status));
+
+    const upcomingConfirmedContracts = contracts
+        .filter(c => c.status === 'CONFIRMED')
+        .map(c => {
+            const startTimes = c.availabilityIds.map(id => {
+                const availability = allAvailabilities.find(a => a.id === id);
+                return availability ? new Date(availability.startTime) : null;
+            }).filter(Boolean);
+
+            const earliestStartTime = startTimes.length > 0 ? new Date(Math.min.apply(null, startTimes)) : null;
+
+            return {
+                ...c,
+                sortDate: earliestStartTime
+            };
+        })
+        .filter(c => c.sortDate && c.sortDate > new Date())
+        .sort((a, b) => a.sortDate - b.sortDate);
+
+    const confirmedContractsToShow = upcomingConfirmedContracts.slice(0, 2);
 
     return (
         <>
-            {/* --- 4. RENDERIZAR O MODAL DE AGENDA --- */}
             <HourAvailabilityModal
                 isOpen={isAgendaModalOpen}
                 onClose={handleAgendaModalClose}
@@ -333,9 +347,14 @@ const ArtistDashboardPage = () => {
                     />
 
                     <ContractList
-                        title="Próximos Eventos (Confirmados)"
-                        contracts={confirmedContracts}
+                        title={`Próximos Eventos (${upcomingConfirmedContracts.length})`}
+                        contracts={confirmedContractsToShow}
                         onAction={fetchArtistData}
+                        footer={
+                            upcomingConfirmedContracts.length > 2 ? (
+                                <Link to="/meus-contratos">Ver todos os contratos</Link>
+                            ) : null
+                        }
                     />
 
                     <TodaySchedule
@@ -346,12 +365,6 @@ const ArtistDashboardPage = () => {
                         isDirty={isDirty}
                         isSubmitting={isSubmitting}
                         error={error}
-                    />
-
-                    <ContractList
-                        title="Histórico de Contratos"
-                        contracts={historyContracts}
-                        onAction={fetchArtistData}
                     />
 
                     <div className={styles.fullScheduleSection}>
@@ -367,7 +380,6 @@ const ArtistDashboardPage = () => {
                                     year={year}
                                     month={month}
                                     availabilities={allAvailabilities}
-                                    // --- 5. ALTERAR O EVENTO DE CLIQUE ---
                                     onDateClick={handleCalendarDateClick}
                                 />
                             ))}

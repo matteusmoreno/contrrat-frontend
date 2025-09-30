@@ -19,6 +19,18 @@
     gap: 2rem;
 }
 
+.nextEventsSection {
+    background-color: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.allContractsButton {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
 .fullScheduleSection {
     background-color: var(--cor-superficie);
     border: 1px solid var(--cor-borda);
