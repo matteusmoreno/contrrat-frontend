@@ -1,49 +1,65 @@
 // src/components/ArtistAvailability/ArtistAvailability.js
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from './ArtistAvailability.module.css';
-import Calendar from '../Calendar/Calendar';
 import Button from '../Button/Button';
-import HourSelectionModal from '../HourSelectionModal/HourSelectionModal'; // Importa o novo modal
+import Calendar from '../Calendar/Calendar';
 import { createContract } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import { FaRegClock, FaRegCalendarCheck, FaRegTimesCircle, FaLock } from 'react-icons/fa';
+
+const areDatesTheSame = (date1, date2) => {
+    if (!date1 || !date2) return false;
+    return date1.toDateString() === date2.toDateString();
+};
 
 const ArtistAvailability = ({ artist, availabilities }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedSlots, setSelectedSlots] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
 
-    const handleDateClick = (date) => {
-        // Abre o modal apenas para dias que têm horários disponíveis
-        const slotsForDay = availabilities.filter(a =>
-            new Date(a.startTime).toDateString() === date.toDateString() && a.availabilityStatus === 'AVAILABLE'
-        );
+    const slotsForSelectedDay = useMemo(() => {
+        const slots = [];
+        const dayStart = new Date(selectedDate);
+        dayStart.setHours(0, 0, 0, 0);
 
-        if (slotsForDay.length > 0) {
-            setSelectedDate(date);
-            setIsModalOpen(true);
-        }
-    };
+        for (let i = 0; i < 24; i++) {
+            const hourStart = new Date(dayStart);
+            hourStart.setHours(i);
 
-    const handleModalClose = () => {
-        setIsModalOpen(false);
-        setSelectedDate(null);
-    };
+            const existingSlot = availabilities.find(slot => {
+                const slotDate = new Date(slot.startTime);
+                return areDatesTheSame(slotDate, selectedDate) && slotDate.getHours() === i;
+            });
 
-    const handleSelectionConfirm = (newlySelectedSlots) => {
-        // Adiciona os novos horários selecionados, evitando duplicatas
-        const updatedSlots = [...selectedSlots];
-        newlySelectedSlots.forEach(newSlot => {
-            if (!updatedSlots.find(s => s.id === newSlot.id)) {
-                updatedSlots.push(newSlot);
+            if (existingSlot) {
+                slots.push({ hour: i, ...existingSlot, status: existingSlot.availabilityStatus });
+            } else {
+                slots.push({
+                    hour: i,
+                    id: `free-${i}-${selectedDate.toISOString()}`,
+                    status: 'FREE',
+                    startTime: hourStart.toISOString(),
+                    price: 0,
+                });
             }
+        }
+        return slots;
+    }, [selectedDate, availabilities]);
+
+    const handleDayClick = (day) => setSelectedDate(day);
+
+    const toggleSlot = (slot) => {
+        setSelectedSlots(prev => {
+            const isSelected = prev.some(s => s.id === slot.id);
+            if (isSelected) {
+                return prev.filter(s => s.id !== slot.id);
+            }
+            return [...prev, slot];
         });
-        setSelectedSlots(updatedSlots);
-        handleModalClose();
     };
 
     const removeSlot = (slotId) => {
@@ -55,11 +71,9 @@ const ArtistAvailability = ({ artist, availabilities }) => {
             setError("Selecione pelo menos um horário.");
             return;
         }
-
         setIsSubmitting(true);
         setError('');
         setSuccess('');
-
         try {
             const availabilityIds = selectedSlots.map(s => s.id);
             await createContract(availabilityIds);
@@ -78,79 +92,121 @@ const ArtistAvailability = ({ artist, availabilities }) => {
 
     const totalPrice = selectedSlots.reduce((total, slot) => total + slot.price, 0);
 
-    const getAvailabilitiesForDate = (date) => {
-        if (!date) return [];
-        return availabilities.filter(avail => {
-            const availDate = new Date(avail.startTime);
-            return availDate.toDateString() === date.toDateString();
-        });
-    };
+    const today = new Date();
+    const isCurrentMonthOrPast = currentDate.getFullYear() < today.getFullYear() ||
+        (currentDate.getFullYear() === today.getFullYear() && currentDate.getMonth() < today.getMonth());
 
     return (
-        <>
-            <HourSelectionModal
-                isOpen={isModalOpen}
-                onClose={handleModalClose}
-                onConfirm={handleSelectionConfirm}
-                date={selectedDate}
-                availabilitiesForDate={getAvailabilitiesForDate(selectedDate)}
-                alreadySelectedIds={selectedSlots.map(s => s.id)}
-            />
+        <section className={styles.container}>
+            <div className={styles.header}>
+                <h2 className={styles.title}>Verificar Disponibilidade e Contratar</h2>
+                <p className={styles.subtitle}>Selecione um dia no calendário para ver os horários disponíveis.</p>
+            </div>
 
-            <div className={styles.container}>
-                <h2 className={styles.title}>Agenda e Contratação</h2>
-                <div className={styles.contentGrid}>
-                    <div className={styles.calendarSection}>
-                        <div className={styles.monthNavigator}>
-                            <Button onClick={() => changeMonth(-1)}>&lt;</Button>
-                            <h3>{new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(currentDate)}</h3>
-                            <Button onClick={() => changeMonth(1)}>&gt;</Button>
-                        </div>
-                        <Calendar
-                            year={currentDate.getFullYear()}
-                            month={currentDate.getMonth()}
-                            onDateClick={handleDateClick}
-                            availabilities={availabilities}
-                        />
+            <div className={styles.mainGrid}>
+                <div className={styles.calendarWrapper}>
+                    <div className={styles.monthNavigator}>
+                        <Button onClick={() => changeMonth(-1)} disabled={isCurrentMonthOrPast}>&lt;</Button>
+                        <h3>{new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(currentDate)}</h3>
+                        <Button onClick={() => changeMonth(1)}>&gt;</Button>
                     </div>
+                    <Calendar
+                        year={currentDate.getFullYear()}
+                        month={currentDate.getMonth()}
+                        onDateClick={handleDayClick}
+                        availabilities={availabilities}
+                        selectedDate={selectedDate}
+                    />
+                </div>
 
-                    <div className={styles.summarySection}>
-                        <h3>Resumo da Proposta</h3>
-                        {selectedSlots.length > 0 ? (
-                            <>
-                                <ul className={styles.summaryList}>
-                                    {selectedSlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime)).map(slot => (
-                                        <li key={slot.id}>
-                                            <div className={styles.slotDetails}>
-                                                <span>{new Date(slot.startTime).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} - {new Date(slot.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                                <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(slot.price)}</span>
-                                            </div>
-                                            <button onClick={() => removeSlot(slot.id)} className={styles.removeButton}>&times;</button>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <div className={styles.summaryTotal}>
-                                    <strong>Total:</strong>
-                                    <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice)}</strong>
+                <div className={styles.scheduleWrapper}>
+                    <h3 className={styles.scheduleTitle}>
+                        Horários de {selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
+                    </h3>
+                    <ul className={styles.scheduleList}>
+                        {slotsForSelectedDay.map(slot => {
+                            const isSelected = selectedSlots.some(s => s.id === slot.id);
+                            const isPast = new Date(slot.startTime) < new Date();
+                            const isDisabled = isPast || slot.status !== 'AVAILABLE';
+
+                            let Icon;
+                            let statusText;
+
+                            switch (slot.status) {
+                                case 'AVAILABLE':
+                                    Icon = FaRegCalendarCheck;
+                                    statusText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(slot.price);
+                                    break;
+                                case 'UNAVAILABLE':
+                                    Icon = FaRegTimesCircle;
+                                    statusText = "Indisponível";
+                                    break;
+                                case 'BOOKED':
+                                    Icon = FaLock;
+                                    statusText = "Reservado";
+                                    break;
+                                default: // FREE
+                                    Icon = FaRegClock;
+                                    statusText = "Sem classificação";
+                                    break;
+                            }
+
+                            if (isPast && !['BOOKED', 'UNAVAILABLE'].includes(slot.status)) {
+                                statusText = "Horário passado";
+                            }
+
+                            return (
+                                <li key={slot.id}>
+                                    <button
+                                        className={`${styles.slotItem} ${styles[slot.status.toLowerCase()]} ${isSelected ? styles.selected : ''} ${isPast ? styles.past : ''}`}
+                                        onClick={() => !isDisabled && toggleSlot(slot)}
+                                        disabled={isDisabled}
+                                    >
+                                        <div className={styles.slotTimeInfo}>
+                                            <Icon className={styles.slotIcon} />
+                                            <span className={styles.slotTime}>{`${String(slot.hour).padStart(2, '0')}:00`}</span>
+                                        </div>
+                                        <span className={styles.slotStatus}>{statusText}</span>
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
+            </div>
+
+            {selectedSlots.length > 0 && (
+                <div className={styles.summarySection}>
+                    <h3>Resumo da Proposta</h3>
+                    <ul className={styles.summaryList}>
+                        {selectedSlots.sort((a, b) => new Date(a.startTime) - new Date(b.startTime)).map(slot => (
+                            <li key={slot.id}>
+                                <div className={styles.slotInfo}>
+                                    <span className={styles.slotDateTime}>
+                                        {new Date(slot.startTime).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                                        {' - '}
+                                        {new Date(slot.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                    <span className={styles.slotPriceSummary}>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(slot.price)}</span>
                                 </div>
-                            </>
-                        ) : (
-                            <p className={styles.noSlotsSummary}>Navegue no calendário, clique em um dia disponível e escolha os horários.</p>
-                        )}
-
-                        {error && <p className={styles.messageError}>{error}</p>}
-                        {success && <p className={styles.messageSuccess}>{success}</p>}
-
-                        <Button
-                            onClick={handleProposeContract}
-                            disabled={selectedSlots.length === 0 || isSubmitting}
-                        >
-                            {isSubmitting ? 'Enviando Proposta...' : 'Propor Contrato'}
+                                <button onClick={() => removeSlot(slot.id)} className={styles.removeButton} aria-label="Remover horário">&times;</button>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className={styles.summaryTotal}>
+                        <strong>Total:</strong>
+                        <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice)}</strong>
+                    </div>
+                    {error && <p className={styles.messageError}>{error}</p>}
+                    {success && <p className={styles.messageSuccess}>{success}</p>}
+                    <div className={styles.summaryActions}>
+                        <Button onClick={handleProposeContract} disabled={isSubmitting}>
+                            {isSubmitting ? 'Enviando...' : 'Propor Contrato'}
                         </Button>
                     </div>
                 </div>
-            </div>
-        </>
+            )}
+        </section>
     );
 };
 

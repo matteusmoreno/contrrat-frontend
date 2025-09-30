@@ -6,59 +6,173 @@
     padding: 2.5rem;
 }
 
-.title {
+.header {
     text-align: center;
-    font-size: 2rem;
-    color: var(--texto-primario);
     margin-bottom: 2.5rem;
 }
 
-.contentGrid {
+.title {
+    font-size: 2rem;
+    color: var(--texto-primario);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--texto-secundario);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.mainGrid {
     display: grid;
-    grid-template-columns: 1fr 350px;
-    /* Calendário flexível, resumo fixo */
-    gap: 2rem;
+    grid-template-columns: 320px 1fr;
+    gap: 2.5rem;
     align-items: flex-start;
 }
 
-.calendarSection,
-.summarySection {
-    background-color: var(--cor-fundo);
-    border: 1px solid var(--cor-borda);
-    border-radius: 12px;
-    padding: 1.5rem;
+.calendarWrapper {
+    position: sticky;
+    top: 100px;
 }
 
-/* NOVO: Estilos para o navegador de mês */
 .monthNavigator {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .monthNavigator h3 {
     color: var(--cor-primaria);
-    font-size: 1.25rem;
+    font-size: 1.1rem;
+    text-transform: capitalize;
+    font-weight: 500;
 }
 
 .monthNavigator button {
     padding: 0.5rem 0.8rem;
 }
 
-/* FIM NOVO */
+.monthNavigator button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
 
+.scheduleWrapper {
+    background-color: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    min-height: 500px;
+    /* Garante altura mínima */
+}
 
-.summarySection h3 {
+.scheduleTitle {
     font-size: 1.25rem;
-    color: var(--cor-primaria);
-    margin-bottom: 1.5rem;
+    color: var(--texto-primario);
+    margin: 0;
+    padding: 1.5rem;
     text-align: center;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.scheduleList {
+    list-style: none;
+    max-height: 480px;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.slotItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-superficie);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slotItem:disabled {
+    cursor: not-allowed;
+}
+
+.slotTimeInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.slotIcon {
+    font-size: 1.1rem;
+}
+
+.slotTime {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.slotStatus {
+    font-size: 0.9rem;
+}
+
+.slotItem.free {
+    color: var(--texto-secundario);
+    background-color: transparent;
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.slotItem.past {
+    opacity: 0.4;
+    background-color: transparent;
+    border-color: #333;
+}
+
+.slotItem.available {
+    color: #4ade80;
+}
+
+.slotItem.available:hover {
+    background-color: rgba(74, 222, 128, 0.1);
+    border-color: #4ade80;
+}
+
+.slotItem.unavailable,
+.slotItem.booked {
+    color: var(--texto-secundario);
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.slotItem.selected {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria-hover);
+    color: white;
+}
+
+.slotItem.selected .slotIcon,
+.slotItem.selected .slotStatus {
+    color: white !important;
 }
 
 .summarySection {
-    position: sticky;
-    top: 100px;
+    margin-top: 2.5rem;
+    padding: 2rem;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo);
+    border-radius: 12px;
+}
+
+.summarySection h3 {
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .summaryList {
@@ -72,15 +186,30 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--cor-borda);
-    color: var(--texto-secundario);
+    padding: 0.85rem 1rem;
+    background-color: var(--cor-superficie);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
 }
 
-/* NOVO: Estilos para os detalhes do slot e botão de remover */
-.slotDetails {
+.slotInfo {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.slotDateTime {
+    font-weight: 500;
+    color: var(--texto-primario);
+}
+
+.slotPriceSummary {
+    font-size: 1rem;
+    color: var(--texto-secundario);
+    font-weight: 500;
 }
 
 .removeButton {
@@ -90,9 +219,8 @@
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0 0.5rem;
+    flex-shrink: 0;
 }
-
-/* FIM NOVO */
 
 .summaryTotal {
     display: flex;
@@ -100,28 +228,28 @@
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--texto-primario);
-    padding: 1rem 0;
-    margin-bottom: 1.5rem;
+    padding-top: 1rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.summaryActions {
+    text-align: center;
+    margin-top: 2rem;
 }
 
 .summarySection button {
-    width: 100%;
-}
-
-.noSlotsSummary {
-    text-align: center;
-    color: var(--texto-secundario);
-    padding: 2rem 0;
-    font-style: italic;
+    min-width: 250px;
 }
 
 .messageError,
 .messageSuccess {
     text-align: center;
-    margin-bottom: 1rem;
+    margin: 1.5rem auto 0;
     padding: 0.75rem;
     border-radius: 8px;
     font-size: 0.9rem;
+    max-width: 700px;
 }
 
 .messageError {
@@ -135,11 +263,11 @@
 }
 
 @media (max-width: 1024px) {
-    .contentGrid {
+    .mainGrid {
         grid-template-columns: 1fr;
     }
 
-    .summarySection {
+    .calendarWrapper {
         position: static;
     }
 }

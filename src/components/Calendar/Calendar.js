@@ -2,7 +2,7 @@
 import React from 'react';
 import styles from './Calendar.module.css';
 
-const Calendar = ({ year, month, onDateClick, availabilities }) => {
+const Calendar = ({ year, month, onDateClick, availabilities, selectedDate }) => {
     const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const daysOfWeek = ["D", "S", "T", "Q", "Q", "S", "S"];
 
@@ -20,28 +20,20 @@ const Calendar = ({ year, month, onDateClick, availabilities }) => {
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
         const isPast = date < new Date().setHours(0, 0, 0, 0);
+        const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
 
-        const dayAvailabilities = availabilities.filter(avail => {
+        const hasAvailableSlots = availabilities.some(avail => {
             const availDate = new Date(avail.startTime);
-            return availDate.getDate() === day && availDate.getMonth() === month && availDate.getFullYear() === year;
+            return availDate.getDate() === day &&
+                availDate.getMonth() === month &&
+                availDate.getFullYear() === year &&
+                avail.availabilityStatus === 'AVAILABLE';
         });
-
-        let dayStatusClass = '';
-        if (dayAvailabilities.length > 0) {
-            if (dayAvailabilities.some(a => a.availabilityStatus === 'BOOKED')) {
-                dayStatusClass = styles.bookedDay;
-            } else if (dayAvailabilities.some(a => a.availabilityStatus === 'AVAILABLE')) {
-                dayStatusClass = styles.availableDay;
-            } else {
-                dayStatusClass = styles.unavailableDay;
-            }
-        }
-
 
         calendarDays.push(
             <button
                 key={day}
-                className={`${styles.day} ${isPast ? styles.pastDay : ''} ${dayStatusClass}`}
+                className={`${styles.day} ${isPast ? styles.pastDay : ''} ${hasAvailableSlots && !isPast ? styles.availableDay : ''} ${isSelected ? styles.selectedDay : ''}`}
                 onClick={() => !isPast && onDateClick(date)}
                 disabled={isPast}
             >
@@ -52,7 +44,6 @@ const Calendar = ({ year, month, onDateClick, availabilities }) => {
 
     return (
         <div className={styles.calendarContainer}>
-            <h3 className={styles.monthName}>{monthNames[month]}</h3>
             <div className={styles.daysOfWeek}>
                 {daysOfWeek.map((day, index) => (
                     <div key={index} className={styles.dayOfWeek}>{day}</div>

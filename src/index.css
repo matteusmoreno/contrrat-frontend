@@ -38,3 +38,22 @@ a {
 a:hover {
   color: var(--cor-primaria-hover);
 }
+
+/* --- ESTILOS DA BARRA DE ROLAGEM --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cor-fundo);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--cor-borda);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #444;
+}
