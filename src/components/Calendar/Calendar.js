@@ -22,18 +22,30 @@ const Calendar = ({ year, month, onDateClick, availabilities, selectedDate }) =>
         const isPast = date < new Date().setHours(0, 0, 0, 0);
         const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
 
-        const hasAvailableSlots = availabilities.some(avail => {
+        const dayAvailabilities = availabilities.filter(avail => {
             const availDate = new Date(avail.startTime);
             return availDate.getDate() === day &&
                 availDate.getMonth() === month &&
-                availDate.getFullYear() === year &&
-                avail.availabilityStatus === 'AVAILABLE';
+                availDate.getFullYear() === year;
         });
+
+        let dayStatusClass = '';
+        if (dayAvailabilities.length > 0) {
+            const statuses = dayAvailabilities.map(a => a.availabilityStatus);
+            if (statuses.includes('BOOKED')) {
+                dayStatusClass = styles.bookedDay;
+            } else if (statuses.includes('AVAILABLE')) {
+                dayStatusClass = styles.availableDay;
+            } else if (statuses.every(s => s === 'UNAVAILABLE')) {
+                dayStatusClass = styles.unavailableDay;
+            }
+        }
+
 
         calendarDays.push(
             <button
                 key={day}
-                className={`${styles.day} ${isPast ? styles.pastDay : ''} ${hasAvailableSlots && !isPast ? styles.availableDay : ''} ${isSelected ? styles.selectedDay : ''}`}
+                className={`${styles.day} ${isPast ? styles.pastDay : ''} ${dayStatusClass} ${isSelected ? styles.selectedDay : ''}`}
                 onClick={() => !isPast && onDateClick(date)}
                 disabled={isPast}
             >
@@ -44,6 +56,9 @@ const Calendar = ({ year, month, onDateClick, availabilities, selectedDate }) =>
 
     return (
         <div className={styles.calendarContainer}>
+            <div className={styles.monthName}>
+                {monthNames[month]}
+            </div>
             <div className={styles.daysOfWeek}>
                 {daysOfWeek.map((day, index) => (
                     <div key={index} className={styles.dayOfWeek}>{day}</div>
