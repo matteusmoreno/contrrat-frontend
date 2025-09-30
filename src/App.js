@@ -14,8 +14,15 @@ import ArtistDashboardPage from './pages/ArtistDashboardPage/ArtistDashboardPage
 import CustomerDashboardPage from './pages/CustomerDashboardPage/CustomerDashboardPage';
 import MinhaAgendaPage from './pages/MinhaAgendaPage/MinhaAgendaPage';
 import CustomerDetailsPage from './pages/CustomerDetailsPage/CustomerDetailsPage';
-import ContractManagementPage from './pages/ContractManagementPage/ContractManagementPage'; // 1. Importar a nova página
+import ContractManagementPage from './pages/ContractManagementPage/ContractManagementPage';
 import './App.css';
+
+// --- INÍCIO DA ALTERAÇÃO ---
+// Importar as novas páginas
+import AboutUsPage from './pages/AboutUsPage/AboutUsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage/PrivacyPolicyPage';
+import TermsOfUsePage from './pages/TermsOfUsePage/TermsOfUsePage';
+// --- FIM DA ALTERAÇÃO ---
 
 function App() {
   return (
@@ -32,13 +39,19 @@ function App() {
             <Route path="/artistas/:id" element={<ArtistDetailsPage />} />
             <Route path="/clientes/:id" element={<CustomerDetailsPage />} />
 
+            {/* --- INÍCIO DA ALTERAÇÃO --- */}
+            {/* Novas Rotas Públicas para o Footer */}
+            <Route path="/sobre-nos" element={<AboutUsPage />} />
+            <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
+            <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
+            {/* --- FIM DA ALTERAÇÃO --- */}
+
             {/* Rotas Protegidas */}
             <Route element={<ProtectedRoute />}>
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/dashboard/artista" element={<ArtistDashboardPage />} />
               <Route path="/dashboard/cliente" element={<CustomerDashboardPage />} />
               <Route path="/minha-agenda" element={<MinhaAgendaPage />} />
-              {/* 2. Adicionar a nova rota */}
               <Route path="/meus-contratos" element={<ContractManagementPage />} />
             </Route>
           </Routes>

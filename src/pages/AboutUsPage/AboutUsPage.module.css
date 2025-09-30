@@ -1,0 +1,30 @@
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--cor-superficie);
+    border-radius: 12px;
+    border: 1px solid var(--cor-borda);
+    color: var(--texto-secundario);
+}
+
+.title {
+    color: var(--cor-primaria);
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.subtitle {
+    color: var(--texto-primario);
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: 0.5rem;
+}
+
+.paragraph {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}

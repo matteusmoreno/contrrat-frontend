@@ -2,7 +2,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
-// import logo from '../../assets/contrrat-logo.png'; // Logo não é mais usado
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from 'react-icons/fa';
 
 const Footer = () => {
@@ -10,21 +9,30 @@ const Footer = () => {
         <footer className={styles.footer}>
             <div className={styles.footerContainer}>
                 <div className={styles.footerAbout}>
-                    {/* **ALTERAÇÃO AQUI:** Removida a tag <img> */}
                     <Link to="/" className={styles.logoContainer}>
                         <span className={styles.logoText}>Contrrat</span>
                     </Link>
                     <p>Conectando talentos a grandes momentos. Encontre o artista perfeito para o seu evento de forma simples e segura.</p>
                 </div>
+
                 <div className={styles.footerLinks}>
-                    <h4>Navegação</h4>
+                    <h4>Plataforma</h4>
                     <ul>
                         <li><Link to="/">Home</Link></li>
-                        <li><Link to="/artistas">Artistas</Link></li>
-                        <li><Link to="/login">Login</Link></li>
+                        <li><Link to="/artistas">Buscar Artistas</Link></li>
                         <li><Link to="/register">Cadastre-se</Link></li>
                     </ul>
                 </div>
+
+                <div className={styles.footerLinks}>
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><Link to="/sobre-nos">Sobre Nós</Link></li>
+                        <li><Link to="/politica-de-privacidade">Política de Privacidade</Link></li>
+                        <li><Link to="/termos-de-uso">Termos de Uso</Link></li>
+                    </ul>
+                </div>
+
                 <div className={styles.footerSocial}>
                     <h4>Siga-nos</h4>
                     <div className={styles.socialIcons}>
