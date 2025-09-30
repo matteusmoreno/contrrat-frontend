@@ -17,16 +17,23 @@ import CustomerDetailsPage from './pages/CustomerDetailsPage/CustomerDetailsPage
 import ContractManagementPage from './pages/ContractManagementPage/ContractManagementPage';
 import './App.css';
 
-// --- INÍCIO DA ALTERAÇÃO ---
-// Importar as novas páginas
+// Importar as páginas legais
 import AboutUsPage from './pages/AboutUsPage/AboutUsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage/TermsOfUsePage';
+
+// --- INÍCIO DA ALTERAÇÃO ---
+// 1. Importar o novo componente
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 // --- FIM DA ALTERAÇÃO ---
 
 function App() {
   return (
     <Router>
+      {/* --- INÍCIO DA ALTERAÇÃO --- */}
+      {/* 2. Adicionar o componente aqui */}
+      <ScrollToTop />
+      {/* --- FIM DA ALTERAÇÃO --- */}
       <div className="app-wrapper">
         <Navbar />
         <main className="main-container">
@@ -39,12 +46,10 @@ function App() {
             <Route path="/artistas/:id" element={<ArtistDetailsPage />} />
             <Route path="/clientes/:id" element={<CustomerDetailsPage />} />
 
-            {/* --- INÍCIO DA ALTERAÇÃO --- */}
-            {/* Novas Rotas Públicas para o Footer */}
+            {/* Rotas Públicas para o Footer */}
             <Route path="/sobre-nos" element={<AboutUsPage />} />
             <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
             <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
-            {/* --- FIM DA ALTERAÇÃO --- */}
 
             {/* Rotas Protegidas */}
             <Route element={<ProtectedRoute />}>
