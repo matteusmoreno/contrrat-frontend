@@ -25,10 +25,7 @@ const ArtistsPage = () => {
                     getAllActiveArtists(),
                     getArtisticFields()
                 ]);
-                // **INÍCIO DA CORREÇÃO**
-                // A API retorna um objeto Page, o array de artistas está em .content
                 setArtists(artistsResponse.data.content || []);
-                // **FIM DA CORREÇÃO**
                 setCategories([{ displayName: 'Todas as Categorias', name: 'ALL' }, ...categoriesResponse.data]);
             } catch (err) {
                 console.error("Erro ao buscar dados:", err);
@@ -99,7 +96,7 @@ const ArtistsPage = () => {
                                 transition={{ duration: 0.3, delay: index * 0.05 }}
                             >
                                 <Link to={`/artistas/${artist.id}`} className={styles.cardLink}>
-                                    <ArtistCard artist={artist} />
+                                    <ArtistCard artist={artist} isFeatured={artist.premium} />
                                 </Link>
                             </motion.div>
                         ))

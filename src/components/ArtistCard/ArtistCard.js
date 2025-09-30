@@ -1,7 +1,6 @@
 // src/components/ArtistCard/ArtistCard.js
 import React from 'react';
 import styles from './ArtistCard.module.css';
-import { FaCheckCircle } from 'react-icons/fa'; // Ícone para o selo premium
 
 const placeholderImage = "https://via.placeholder.com/400x300.png/1E1E1E/EAEAEA?text=Artista";
 
@@ -17,12 +16,6 @@ const ArtistCard = ({ artist, isFeatured = false }) => {
         <div className={cardClasses}>
             <div className={styles.imageContainer}>
                 <img src={artist.profilePictureUrl || placeholderImage} alt={artist.name} className={styles.cardImage} />
-                {/* **NOVO:** Selo Premium */}
-                {artist.premium && (
-                    <div className={styles.premiumBadge}>
-                        <FaCheckCircle /> Premium
-                    </div>
-                )}
             </div>
             <div className={styles.cardContent}>
                 <h3>{artist.name}</h3>

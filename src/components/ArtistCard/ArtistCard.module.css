@@ -8,11 +8,8 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    /* --- CORREÇÃO DEFINITIVA --- */
     width: 100%;
-    /* Garante que o card ocupe a largura do link */
     flex-grow: 1;
-    /* Faz o card expandir para preencher a altura do link */
 }
 
 .card:hover {
@@ -22,7 +19,8 @@
 
 .card.featured {
     border-color: #FFD700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    background: linear-gradient(145deg, var(--cor-superficie), #2c2a22);
 }
 
 .imageContainer {
@@ -30,7 +28,6 @@
     width: 100%;
     height: 200px;
     flex-shrink: 0;
-    /* Impede que o container da imagem encolha */
     background-color: var(--cor-borda);
 }
 
@@ -39,22 +36,6 @@
     height: 100%;
     object-fit: cover;
     display: block;
-}
-
-.premiumBadge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background-color: #FFD700;
-    color: #121212;
-    padding: 0.3rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .cardContent {
