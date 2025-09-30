@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 import styles from './ContractDetailsModal.module.css';
 import Modal from '../Modal/Modal';
 import Button from '../Button/Button';
-// O ConfirmationModal não é mais necessário aqui
 import { getAvailabilityById, confirmContract, rejectContract, cancelContract } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { translateContractStatus } from '../../utils/translations'; // 1. Importa a função
 
 const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
     const { user } = useAuth();
@@ -37,7 +37,6 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
         }
     }, [isOpen, fetchAvailabilityDetails]);
 
-    // A ação agora é executada diretamente, sem um modal de confirmação.
     const handleAction = async (action) => {
         setLoading(true);
         setError('');
@@ -49,12 +48,11 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
             } else if (action === 'cancel') {
                 await cancelContract(contract.id);
             }
-            onAction(); // Atualiza a lista na página
-            onClose();  // Fecha este modal
+            onAction();
+            onClose();
         } catch (err) {
             console.error(`Erro ao ${action} o contrato:`, err);
             setError(err.response?.data || 'Ocorreu um erro ao processar a ação.');
-            // Mantém o modal aberto para exibir o erro, mas reseta o loading
             setLoading(false);
         }
     };
@@ -91,7 +89,7 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
                 <div className={styles.detailsGrid}>
                     <div>
                         <strong>Status:</strong>
-                        <span className={`${styles.status} ${styles[status.toLowerCase()]}`}>{status.replace('_', ' ')}</span>
+                        <span className={`${styles.status} ${styles[status.toLowerCase()]}`}>{translateContractStatus(status)}</span> {/* 2. Usa a função para traduzir */}
                     </div>
                     <div><strong>Valor Total:</strong> {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPrice)}</div>
                     <div><strong>Data da Proposta:</strong> {formatDate(createdAt)}</div>
@@ -114,7 +112,6 @@ const ContractDetailsModal = ({ isOpen, onClose, contract, onAction }) => {
 
                 {error && <p className={styles.error}>{error}</p>}
 
-                {/* --- BOTÕES AGORA CHAMAM A AÇÃO DIRETAMENTE --- */}
                 <div className={styles.actions}>
                     {userRole === 'ROLE_ARTIST' && status === 'PENDING_CONFIRMATION' && (
                         <>

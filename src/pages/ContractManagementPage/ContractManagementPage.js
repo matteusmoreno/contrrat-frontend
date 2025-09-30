@@ -137,7 +137,7 @@ const ContractManagementPage = () => {
                                 className={`${styles.subTabButton} ${activeHistoryTab === 'rejected' ? styles.active : ''}`}
                                 onClick={() => setActiveHistoryTab('rejected')}
                             >
-                                Rejeitados ({rejectedContracts.length})
+                                Recusados ({rejectedContracts.length})
                             </button>
                             <button
                                 className={`${styles.subTabButton} ${activeHistoryTab === 'canceled' ? styles.active : ''}`}

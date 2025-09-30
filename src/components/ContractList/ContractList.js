@@ -4,6 +4,7 @@ import styles from './ContractList.module.css';
 import { Link } from 'react-router-dom';
 import ContractDetailsModal from '../ContractDetailsModal/ContractDetailsModal';
 import { useAuth } from '../../contexts/AuthContext';
+import { translateContractStatus } from '../../utils/translations'; // 1. Importa a função
 
 const ContractCard = ({ contract, onCardClick, userRole }) => {
     const { artist, customer, status, totalPrice, createdAt } = contract;
@@ -29,7 +30,7 @@ const ContractCard = ({ contract, onCardClick, userRole }) => {
                 <p><strong>Valor:</strong> {formattedPrice}</p>
             </div>
             <div className={styles.status}>
-                {status.replace('_', ' ')}
+                {translateContractStatus(status)} {/* 2. Usa a função para traduzir */}
             </div>
         </div>
     );
