@@ -1,73 +1,25 @@
 // src/pages/HomePage/HomePage.js
-import React, { useState, useEffect, useRef } from 'react'; // Adicionado useRef
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './HomePage.module.css';
-import ArtistCard from '../../components/ArtistCard/ArtistCard';
 import Button from '../../components/Button/Button';
-import SearchBar from '../../components/SearchBar/SearchBar';
-import TestimonialCard from '../../components/TestimonialCard/TestimonialCard';
-import { getPremiumArtists, getArtisticFields } from '../../services/api';
-import { motion } from 'framer-motion';
-import { FaMusic, FaCamera, FaMagic, FaPalette, FaBirthdayCake, FaBuilding, FaBullhorn } from 'react-icons/fa';
-
-// Dados de exemplo para depoimentos (sem avatares)
-const testimonials = [
-    {
-        quote: "Encontrei um fotógrafo incrível para o meu casamento em minutos. A plataforma é super intuitiva e segura. Recomendo demais!",
-        author: "Juliana Costa",
-        role: "Noiva",
-    },
-    {
-        quote: "Como músico, o Contrrat abriu muitas portas. A gestão da agenda é fantástica e já fechei vários eventos por aqui.",
-        author: "Ricardo Alves",
-        role: "Músico",
-    },
-    {
-        quote: "Organizei a festa de fim de ano da minha empresa e contratei uma banda e um mágico pelo site. Foi um sucesso absoluto!",
-        author: "Mariana Ferreira",
-        role: "Produtora de Eventos",
-    }
-];
+import { getPremiumArtists } from '../../services/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaPalette, FaMusic, FaCamera, FaMagic, FaFileSignature, FaCalendarCheck, FaStar, FaUsers, FaGuitar } from 'react-icons/fa';
 
 const HomePage = () => {
     const [artists, setArtists] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    // --- LÓGICA DO CARROSSEL ---
-    const carouselRef = useRef();
-    const [width, setWidth] = useState(0);
+    const [featuredIndex, setFeaturedIndex] = useState(0);
 
     useEffect(() => {
-        const fetchAndMeasure = async () => {
+        const fetchData = async () => {
             setLoading(true);
             setError(null);
             try {
-                const [artistsResponse, categoriesResponse] = await Promise.all([
-                    getPremiumArtists(),
-                    getArtisticFields()
-                ]);
-
-                setArtists(artistsResponse.data.content?.slice(0, 8) || []); // Pegar mais artistas para o carrossel
-
-                const categoryIcons = {
-                    BANDA: <FaMusic />, CANTOR: <FaMusic />, DJ: <FaMusic />,
-                    FOTOGRAFO: <FaCamera />, VIDEOMAKER: <FaCamera />,
-                    MAGICO: <FaMagic />, ATOR: <FaMagic />,
-                    PINTOR: <FaPalette />, GRAFITEIRO: <FaPalette />,
-                    RECREADOR_INFANTIL: <FaBirthdayCake />,
-                    CELEBRANTE_DE_CASAMENTO: <FaBuilding />,
-                    MESTRE_DE_CERIMONIAS: <FaBullhorn />,
-                };
-
-                const allCategories = categoriesResponse.data.map(cat => ({
-                    ...cat,
-                    icon: categoryIcons[cat.name] || <FaMusic />
-                }));
-
-                setCategories(allCategories);
-
+                const artistsResponse = await getPremiumArtists();
+                setArtists(artistsResponse.data.content?.slice(0, 5) || []);
             } catch (error) {
                 console.error("Erro ao buscar dados da home:", error);
                 setError("Não foi possível carregar o conteúdo. Tente novamente mais tarde.");
@@ -75,45 +27,63 @@ const HomePage = () => {
                 setLoading(false);
             }
         };
-
-        fetchAndMeasure();
+        fetchData();
     }, []);
 
-    // Efeito para calcular a largura do carrossel
+    // Efeito para alternar o artista em destaque
     useEffect(() => {
-        if (carouselRef.current) {
-            const trackScrollWidth = carouselRef.current.scrollWidth;
-            const carouselOffsetWidth = carouselRef.current.offsetWidth;
-            setWidth(trackScrollWidth - carouselOffsetWidth);
+        if (artists.length > 1) {
+            const interval = setInterval(() => {
+                setFeaturedIndex(prevIndex => (prevIndex + 1) % artists.length);
+            }, 5000); // Muda a cada 5 segundos
+            return () => clearInterval(interval);
         }
-    }, [artists]); // Recalcula quando os artistas são carregados
+    }, [artists]);
 
+    const heroArtists = artists.slice(0, 4);
 
-    const renderArtistContent = () => {
+    const renderFeaturedArtists = () => {
         if (loading) return <div className={styles.loader}></div>;
         if (error) return <p className={styles.messageError}>{error}</p>;
-        if (artists.length === 0) return <p className={styles.message}>Nenhum artista em destaque no momento.</p>;
+        if (artists.length < 1) return <p className={styles.message}>Descubra novos talentos em breve.</p>;
+
+        const mainArtist = artists[featuredIndex];
+        const otherArtists = artists.filter((_, index) => index !== featuredIndex);
 
         return (
-            // Contêiner do carrossel (viewport)
-            <motion.div className={styles.carouselContainer}>
-                {/* Trilha arrastável do carrossel */}
-                <motion.div
-                    ref={carouselRef}
-                    className={styles.artistsGrid}
-                    drag="x"
-                    dragConstraints={{ right: 0, left: -width }}
-                    whileTap={{ cursor: "grabbing" }}
-                >
-                    {artists.map((artist) => (
-                        <motion.div key={artist.id} className={styles.artistCardWrapper}>
-                            <Link to={`/artistas/${artist.id}`} className={styles.cardLink}>
-                                <ArtistCard artist={artist} isFeatured={artist.premium} />
-                            </Link>
-                        </motion.div>
+            <div className={styles.featuredGrid}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={mainArtist.id}
+                        className={`${styles.featuredCard} ${styles.featuredMain}`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <Link to={`/artistas/${mainArtist.id}`}>
+                            <img src={mainArtist.profilePictureUrl || "https://via.placeholder.com/600x800.png/1E1E1E/EAEAEA?text=Artista"} alt={mainArtist.name} className={styles.cardImage} />
+                            <div className={styles.cardOverlay}>
+                                <div>
+                                    <span className={styles.cardTag}>Destaque</span>
+                                    <h3>{mainArtist.name}</h3>
+                                    <p>{mainArtist.artisticField}</p>
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+                </AnimatePresence>
+                <div className={styles.featuredSubgrid}>
+                    {otherArtists.map(artist => (
+                        <Link key={artist.id} to={`/artistas/${artist.id}`} className={`${styles.featuredCard} ${styles.featuredSecondary}`}>
+                            <img src={artist.profilePictureUrl || "https://via.placeholder.com/400x400.png/1E1E1E/EAEAEA?text=Artista"} alt={artist.name} className={styles.cardImage} />
+                            <div className={styles.cardOverlay}>
+                                <h3>{artist.name}</h3>
+                            </div>
+                        </Link>
                     ))}
-                </motion.div>
-            </motion.div>
+                </div>
+            </div>
         );
     };
 
@@ -121,51 +91,66 @@ const HomePage = () => {
         <div className={styles.homeContainer}>
             {/* --- HERO SECTION --- */}
             <section className={styles.heroSection}>
+                <div className={styles.heroImageCollage}>
+                    {heroArtists.map((artist, index) => (
+                        <motion.div
+                            key={artist.id}
+                            className={`${styles.heroImageWrapper} ${styles[`heroImage${index + 1}`]}`}
+                            initial={{ opacity: 0, y: 50, rotate: -5 }}
+                            animate={{ opacity: 1, y: 0, rotate: (index % 2 === 0 ? 5 : -3) }}
+                            transition={{ duration: 0.8, delay: index * 0.15, ease: "easeOut" }}
+                        >
+                            <img src={artist.profilePictureUrl || "https://via.placeholder.com/300"} alt={artist.name} />
+                        </motion.div>
+                    ))}
+                </div>
                 <div className={styles.heroContent}>
                     <motion.h1
                         className={styles.heroTitle}
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
+                        transition={{ duration: 0.6, delay: 0.5 }}
                     >
-                        O palco perfeito para o seu evento
+                        Encontre o Artista. Contrate o Show. Crie a Memória.
                     </motion.h1>
                     <motion.p
                         className={styles.heroSubtitle}
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                    >
-                        Encontre e contrate músicos, fotógrafos, mágicos e todos os talentos que você precisa para criar momentos inesquecíveis.
-                    </motion.p>
-                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
+                        transition={{ duration: 0.6, delay: 0.7 }}
                     >
-                        <SearchBar />
+                        A plataforma que conecta você aos melhores talentos para eventos inesquecíveis.
+                    </motion.p>
+                    <motion.div
+                        className={styles.heroActions}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.9 }}
+                    >
+                        <Link to="/artistas"><Button>Explorar Talentos</Button></Link>
                     </motion.div>
                 </div>
             </section>
 
-            {/* --- HOW IT WORKS SECTION --- */}
-            <section className={styles.howItWorksSection}>
-                <h2 className={styles.sectionTitle}>Simples, Rápido e <span>Seguro</span></h2>
-                <div className={styles.stepsGrid}>
-                    <div className={styles.stepCard}>
-                        <div className={styles.stepNumber}>1</div>
-                        <h3>Descubra Talentos</h3>
-                        <p>Use nossa busca inteligente e filtros para encontrar o artista perfeito para o seu evento.</p>
+            {/* --- WHY US SECTION --- */}
+            <section className={styles.whyUsSection}>
+                <h2 className={styles.sectionTitle}>Por que <span>Contrrat</span>?</h2>
+                <p className={styles.sectionSubtitle}>Nós simplificamos a conexão entre talento e evento com segurança e praticidade.</p>
+                <div className={styles.benefitsGrid}>
+                    <div className={styles.benefitCard}>
+                        <div className={styles.benefitIcon}><FaFileSignature /></div>
+                        <h3>Contratos Simplificados</h3>
+                        <p>Gere e gerencie propostas e contratos digitais com validade jurídica em poucos cliques.</p>
                     </div>
-                    <div className={styles.stepCard}>
-                        <div className={styles.stepNumber}>2</div>
-                        <h3>Consulte a Agenda</h3>
-                        <p>Veja a disponibilidade em tempo real e selecione os horários ideais para você.</p>
+                    <div className={styles.benefitCard}>
+                        <div className={styles.benefitIcon}><FaCalendarCheck /></div>
+                        <h3>Agenda Inteligente</h3>
+                        <p>Consulte a disponibilidade real do artista e evite conflitos de agendamento.</p>
                     </div>
-                    <div className={styles.stepCard}>
-                        <div className={styles.stepNumber}>3</div>
-                        <h3>Contrate Online</h3>
-                        <p>Envie sua proposta e feche o contrato com segurança, tudo dentro da plataforma.</p>
+                    <div className={styles.benefitCard}>
+                        <div className={styles.benefitIcon}><FaStar /></div>
+                        <h3>Talentos Verificados</h3>
+                        <p>Acesso a um catálogo curado de artistas e profissionais para todos os tipos de evento.</p>
                     </div>
                 </div>
             </section>
@@ -173,38 +158,32 @@ const HomePage = () => {
             {/* --- FEATURED ARTISTS SECTION --- */}
             <section className={styles.featuredSection}>
                 <h2 className={styles.sectionTitle}>Artistas em <span>Destaque</span></h2>
-                {renderArtistContent()}
+                <p className={styles.sectionSubtitle}>Descubra os artistas que estão conquistando o público na nossa plataforma.</p>
+                {renderFeaturedArtists()}
                 <div className={styles.viewAll}>
-                    <Link to="/artistas"><Button variant="primary">Ver Todos os Artistas</Button></Link>
+                    <Link to="/artistas"><Button variant="outline">Ver Todos os Artistas</Button></Link>
                 </div>
             </section>
 
-            {/* --- TESTIMONIALS SECTION --- */}
-            <section className={styles.testimonialsSection}>
-                <h2 className={styles.sectionTitle}>Quem usa, <span>Recomenda</span></h2>
-                <div className={styles.testimonialsGrid}>
-                    {testimonials.map((testimonial, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 50 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: index * 0.15 }}
-                        >
-                            <TestimonialCard {...testimonial} />
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            {/* --- FINAL CTA SECTION --- */}
-            <section className={styles.ctaSection}>
-                <div className={styles.ctaContent}>
-                    <h2>Pronto para começar?</h2>
-                    <p>Junte-se à nossa comunidade e transforme seu próximo evento em um momento inesquecível.</p>
-                    <div className={styles.ctaActions}>
-                        <Link to="/register"><Button variant="primary" size="large">Crie sua Conta Grátis</Button></Link>
-                        <Link to="/artistas"><Button variant="outline" size="large">Explorar Artistas</Button></Link>
+            {/* --- JOIN US SECTION --- */}
+            <section className={styles.joinUsSection}>
+                <h2 className={styles.sectionTitle}>Faça parte da nossa <span>comunidade</span></h2>
+                <div className={styles.joinGrid}>
+                    <div className={`${styles.joinCard} ${styles.joinCustomer}`}>
+                        <div className={styles.joinContent}>
+                            <div className={styles.joinIconWrapper}><FaUsers className={styles.joinIcon} /></div>
+                            <h2>Quero Contratar</h2>
+                            <p>Encontre os melhores talentos para seu evento, de forma rápida e segura.</p>
+                            <Link to="/register"><Button variant="outline">Criar Conta de Contratante</Button></Link>
+                        </div>
+                    </div>
+                    <div className={`${styles.joinCard} ${styles.joinArtist}`}>
+                        <div className={styles.joinContent}>
+                            <div className={styles.joinIconWrapper}><FaGuitar className={styles.joinIcon} /></div>
+                            <h2>Sou um Artista</h2>
+                            <p>Divulgue seu trabalho, gerencie sua agenda e feche novos contratos.</p>
+                            <Link to="/register"><Button>Divulgar meu Trabalho</Button></Link>
+                        </div>
                     </div>
                 </div>
             </section>

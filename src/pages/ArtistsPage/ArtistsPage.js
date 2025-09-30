@@ -42,9 +42,14 @@ const ArtistsPage = () => {
     };
 
     const filteredArtists = artists.filter(artist => {
-        const matchesCategory = selectedCategory === 'ALL' || artist.artisticField === categories.find(c => c.name === selectedCategory)?.displayName;
+        // --- INÍCIO DA CORREÇÃO ---
+        const categoryObject = categories.find(c => c.name === selectedCategory);
+        const categoryDisplayName = categoryObject ? categoryObject.displayName : '';
+        const matchesCategory = selectedCategory === 'ALL' || artist.artisticField === categoryDisplayName;
+        // --- FIM DA CORREÇÃO ---
+
         const matchesSearch = artist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            artist.address.city.toLowerCase().includes(searchTerm.toLowerCase());
+            (artist.address && artist.address.city.toLowerCase().includes(searchTerm.toLowerCase()));
         return matchesCategory && matchesSearch;
     });
 
