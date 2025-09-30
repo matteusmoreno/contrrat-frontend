@@ -12,6 +12,11 @@
     z-index: 2000;
 }
 
+/* ADICIONE ESTA NOVA CLASSE */
+.modalOverlay.top {
+    z-index: 3000;
+}
+
 .modalContent {
     background-color: var(--cor-superficie);
     padding: 2rem;
