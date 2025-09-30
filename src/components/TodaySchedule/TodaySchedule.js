@@ -3,7 +3,7 @@ import React from 'react';
 import styles from './TodaySchedule.module.css';
 import Button from '../Button/Button';
 import PriceInput from '../PriceInput/PriceInput';
-import { FaCircle } from 'react-icons/fa'; // Ícone para a legenda
+import { FaCircle } from 'react-icons/fa';
 
 const TodaySchedule = ({ availabilities, onAvailabilitiesChange, onSave, onCancel, isDirty, isSubmitting, error }) => {
 
@@ -53,9 +53,9 @@ const TodaySchedule = ({ availabilities, onAvailabilitiesChange, onSave, onCance
                 {Object.keys(availabilities).map(hourStr => {
                     const hour = parseInt(hourStr, 10);
                     const availability = availabilities[hour];
-                    // --- CORREÇÃO NA LÓGICA ---
-                    // Apenas horários estritamente menores que o atual são "passados"
-                    const isPast = hour < currentHour;
+                    // --- CORREÇÃO APLICADA AQUI ---
+                    // Horários menores ou iguais ao atual são considerados "passados"
+                    const isPast = hour <= currentHour;
 
                     return (
                         <div key={hour} className={styles.hourSlotWrapper}>
