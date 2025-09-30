@@ -1,7 +1,7 @@
 // src/pages/CustomerDashboardPage/CustomerDashboardPage.js
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getProfile, getContractsForCustomer, uploadImage, updateProfilePicture } from '../../services/api';
+import { getProfile, getContractsForCustomer, uploadImage, updateProfilePicture, getAvailabilityById } from '../../services/api';
 import styles from './CustomerDashboardPage.module.css';
 import { Link } from 'react-router-dom';
 import Button from '../../components/Button/Button';
@@ -15,6 +15,7 @@ const CustomerDashboardPage = () => {
     const { user, loading: authLoading } = useAuth();
     const [profileData, setProfileData] = useState(null);
     const [contracts, setContracts] = useState([]);
+    const [allAvailabilities, setAllAvailabilities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -37,8 +38,24 @@ const CustomerDashboardPage = () => {
                     getProfile('CUSTOMER', user.customerId),
                     getContractsForCustomer()
                 ]);
-                setProfileData(profileResponse.data);
-                setContracts(contractsResponse.data.content || []);
+
+                const profile = profileResponse.data;
+                const fetchedContracts = contractsResponse.data.content || [];
+
+                const confirmedContracts = fetchedContracts.filter(c => c.status === 'CONFIRMED');
+                const availabilityIds = confirmedContracts.flatMap(c => c.availabilityIds);
+                const uniqueAvailabilityIds = [...new Set(availabilityIds)];
+
+                if (uniqueAvailabilityIds.length > 0) {
+                    const availabilityPromises = uniqueAvailabilityIds.map(id => getAvailabilityById(id));
+                    const availabilityResponses = await Promise.all(availabilityPromises);
+                    const fetchedAvailabilities = availabilityResponses.map(res => res.data);
+                    setAllAvailabilities(fetchedAvailabilities);
+                }
+
+                setProfileData(profile);
+                setContracts(fetchedContracts);
+
             } catch (err) {
                 console.error("Erro ao buscar dados do cliente:", err);
                 setError("Não foi possível carregar os dados do dashboard.");
@@ -114,10 +131,8 @@ const CustomerDashboardPage = () => {
             }
             try {
                 const imageUrl = await uploadImage(blob);
-                // --- INÍCIO DA CORREÇÃO ---
                 const profileType = user.authorities === 'ROLE_ARTIST' ? 'ARTIST' : 'CUSTOMER';
                 await updateProfilePicture(profileType, imageUrl);
-                // --- FIM DA CORREÇÃO ---
                 setProfileData(prev => ({ ...prev, profilePictureUrl: imageUrl }));
             } catch (err) {
                 console.error("Erro no upload:", err);
@@ -144,8 +159,26 @@ const CustomerDashboardPage = () => {
     }
 
     const pendingContracts = contracts.filter(c => c.status === 'PENDING_CONFIRMATION');
-    const confirmedContracts = contracts.filter(c => c.status === 'CONFIRMED');
-    const historyContracts = contracts.filter(c => ['REJECTED', 'CANCELED', 'COMPLETED'].includes(c.status));
+
+    const upcomingConfirmedContracts = contracts
+        .filter(c => c.status === 'CONFIRMED')
+        .map(c => {
+            const startTimes = c.availabilityIds.map(id => {
+                const availability = allAvailabilities.find(a => a.id === id);
+                return availability ? new Date(availability.startTime) : null;
+            }).filter(Boolean);
+
+            const earliestStartTime = startTimes.length > 0 ? new Date(Math.min.apply(null, startTimes)) : null;
+
+            return {
+                ...c,
+                sortDate: earliestStartTime
+            };
+        })
+        .filter(c => c.sortDate && c.sortDate > new Date())
+        .sort((a, b) => a.sortDate - b.sortDate);
+
+    const confirmedContractsToShow = upcomingConfirmedContracts.slice(0, 2);
 
     return (
         <>
@@ -193,9 +226,28 @@ const CustomerDashboardPage = () => {
                             <Button variant="primary">Buscar Artistas</Button>
                         </Link>
                     </div>
-                    <ContractList title="Contratos Pendentes" contracts={pendingContracts} />
-                    <ContractList title="Próximos Eventos" contracts={confirmedContracts} />
-                    <ContractList title="Histórico de Contratos" contracts={historyContracts} />
+                    {pendingContracts.length > 0 && (
+                        <ContractList
+                            title="Contratos Pendentes"
+                            contracts={pendingContracts}
+                            onAction={fetchCustomerData}
+                        />
+                    )}
+
+                    {upcomingConfirmedContracts.length > 0 && (
+                        <div className={styles.nextEventsSection}>
+                            <ContractList
+                                title={`Próximos Eventos (${upcomingConfirmedContracts.length})`}
+                                contracts={confirmedContractsToShow}
+                                onAction={fetchCustomerData}
+                            />
+                            {upcomingConfirmedContracts.length > 2 && (
+                                <div className={styles.allContractsButton}>
+                                    <Link to="/meus-contratos">Ver Todos os Contratos</Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </main>
             </div>
         </>
