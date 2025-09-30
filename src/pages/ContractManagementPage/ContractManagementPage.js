@@ -10,6 +10,8 @@ const ContractManagementPage = () => {
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [activeTab, setActiveTab] = useState('pending');
+    const [activeHistoryTab, setActiveHistoryTab] = useState('completed');
 
     const fetchContracts = useCallback(async () => {
         if (!user) return;
@@ -35,6 +37,22 @@ const ContractManagementPage = () => {
         }
     }, [authLoading, fetchContracts]);
 
+    const groupContractsByParty = (contractList) => {
+        const isArtistView = user.authorities === 'ROLE_ARTIST';
+        const partyKey = isArtistView ? 'customer' : 'artist';
+
+        return contractList.reduce((acc, contract) => {
+            const party = contract[partyKey];
+            if (!acc[party.id]) {
+                acc[party.id] = {
+                    partyInfo: party,
+                    contracts: []
+                };
+            }
+            acc[party.id].contracts.push(contract);
+            return acc;
+        }, {});
+    };
 
     if (loading || authLoading) {
         return <div className={styles.loader}></div>;
@@ -46,7 +64,33 @@ const ContractManagementPage = () => {
 
     const pendingContracts = contracts.filter(c => c.status === 'PENDING_CONFIRMATION');
     const confirmedContracts = contracts.filter(c => c.status === 'CONFIRMED');
-    const historyContracts = contracts.filter(c => ['REJECTED', 'CANCELED', 'COMPLETED'].includes(c.status));
+    const completedContracts = contracts.filter(c => c.status === 'COMPLETED');
+    const rejectedContracts = contracts.filter(c => c.status === 'REJECTED');
+    const canceledContracts = contracts.filter(c => c.status === 'CANCELED');
+
+    const isArtist = user.authorities === 'ROLE_ARTIST';
+
+    const groupedPending = groupContractsByParty(pendingContracts);
+    const groupedConfirmed = groupContractsByParty(confirmedContracts);
+    const groupedCompleted = groupContractsByParty(completedContracts);
+    const groupedRejected = groupContractsByParty(rejectedContracts);
+    const groupedCanceled = groupContractsByParty(canceledContracts);
+
+    const renderGroupedContracts = (groupedData, title) => {
+        const groups = Object.values(groupedData);
+        if (groups.length === 0) {
+            return <p className={styles.emptyMessage}>Nenhum contrato para exibir nesta categoria.</p>;
+        }
+        return groups.map(group => (
+            <div key={group.partyInfo.id} className={styles.partyGroup}>
+                <ContractList
+                    title={`Contratos com ${group.partyInfo.name}`}
+                    contracts={group.contracts}
+                    onAction={fetchContracts}
+                />
+            </div>
+        ));
+    };
 
     return (
         <div className={styles.container}>
@@ -55,35 +99,60 @@ const ContractManagementPage = () => {
                 <p>Visualize e gerencie todos os seus contratos em um só lugar.</p>
             </header>
 
+            <div className={styles.tabs}>
+                <button
+                    className={`${styles.tabButton} ${activeTab === 'pending' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('pending')}
+                >
+                    Pendentes ({pendingContracts.length})
+                </button>
+                <button
+                    className={`${styles.tabButton} ${activeTab === 'confirmed' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('confirmed')}
+                >
+                    Confirmados ({confirmedContracts.length})
+                </button>
+                <button
+                    className={`${styles.tabButton} ${activeTab === 'history' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('history')}
+                >
+                    Histórico ({completedContracts.length + rejectedContracts.length + canceledContracts.length})
+                </button>
+            </div>
+
             <div className={styles.contractsSection}>
-                {user.authorities === 'ROLE_ARTIST' && (
-                    <ContractList
-                        title="Propostas Pendentes"
-                        contracts={pendingContracts}
-                        onAction={fetchContracts}
-                    />
+                {activeTab === 'pending' && renderGroupedContracts(groupedPending)}
+                {activeTab === 'confirmed' && renderGroupedContracts(groupedConfirmed)}
+
+                {activeTab === 'history' && (
+                    <div className={styles.historyContainer}>
+                        <div className={styles.subTabs}>
+                            <button
+                                className={`${styles.subTabButton} ${activeHistoryTab === 'completed' ? styles.active : ''}`}
+                                onClick={() => setActiveHistoryTab('completed')}
+                            >
+                                Finalizados ({completedContracts.length})
+                            </button>
+                            <button
+                                className={`${styles.subTabButton} ${activeHistoryTab === 'rejected' ? styles.active : ''}`}
+                                onClick={() => setActiveHistoryTab('rejected')}
+                            >
+                                Rejeitados ({rejectedContracts.length})
+                            </button>
+                            <button
+                                className={`${styles.subTabButton} ${activeHistoryTab === 'canceled' ? styles.active : ''}`}
+                                onClick={() => setActiveHistoryTab('canceled')}
+                            >
+                                Cancelados ({canceledContracts.length})
+                            </button>
+                        </div>
+                        <div className={styles.historyContent}>
+                            {activeHistoryTab === 'completed' && renderGroupedContracts(groupedCompleted)}
+                            {activeHistoryTab === 'rejected' && renderGroupedContracts(groupedRejected)}
+                            {activeHistoryTab === 'canceled' && renderGroupedContracts(groupedCanceled)}
+                        </div>
+                    </div>
                 )}
-
-                {user.authorities === 'ROLE_CUSTOMER' && (
-                    <ContractList
-                        title="Contratos Aguardando Confirmação do Artista"
-                        contracts={pendingContracts}
-                        onAction={fetchContracts}
-                    />
-                )}
-
-
-                <ContractList
-                    title="Próximos Eventos Confirmados"
-                    contracts={confirmedContracts}
-                    onAction={fetchContracts}
-                />
-
-                <ContractList
-                    title="Histórico de Contratos"
-                    contracts={historyContracts}
-                    onAction={fetchContracts}
-                />
             </div>
         </div>
     );

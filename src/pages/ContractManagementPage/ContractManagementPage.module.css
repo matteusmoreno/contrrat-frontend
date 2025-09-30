@@ -19,10 +19,98 @@
     color: var(--texto-secundario);
 }
 
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabButton {
+    background: none;
+    border: none;
+    color: var(--texto-secundario);
+    padding: 1rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease-in-out;
+}
+
+.tabButton:hover {
+    color: var(--texto-primario);
+}
+
+.tabButton.active {
+    color: var(--cor-primaria);
+    font-weight: 500;
+}
+
+.tabButton.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--cor-primaria);
+}
+
 .contractsSection {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+}
+
+.partyGroup+.partyGroup {
+    margin-top: 2rem;
+}
+
+.emptyMessage {
+    color: var(--texto-secundario);
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--cor-superficie);
+    border: 1px dashed var(--cor-borda);
+    border-radius: 8px;
+}
+
+.historyContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.subTabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    background-color: var(--cor-superficie);
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+}
+
+.subTabButton {
+    background: none;
+    border: 2px solid transparent;
+    color: var(--texto-secundario);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.subTabButton:hover {
+    color: var(--texto-primario);
+    background-color: var(--cor-fundo);
+}
+
+.subTabButton.active {
+    color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    background-color: var(--cor-fundo);
 }
 
 .loader {
